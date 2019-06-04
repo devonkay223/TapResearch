@@ -1,6 +1,6 @@
 //3 Graphic Visualizers with Sound Input
 
-//let song;
+// let song;
 let data =[];
 let volhistory = [];
 let source = null;
@@ -36,6 +36,8 @@ let btop = 0;
 let bHeight = 0;
 let bPad = 0;
 
+var polySynth;
+
 
 
 //GUI
@@ -45,8 +47,8 @@ let bPad = 0;
 
 
 // function preload() {
-//   //song = loadSound('underwater.mp3');
-//   }
+//   song = loadSound('tapaudio.mp3');
+// }
 
  //function touchStarted() {
 //   getAudioContext().resume();
@@ -237,7 +239,6 @@ function getText(){
   let num = parseInt(transbin,10)
   addedlet += char(num);
   sentence += addedlet;
-  polySynth.play("G2", 0.1, 0, 1.5);
   transbin = "";
   trans = false;
   return addedlet;
@@ -255,7 +256,7 @@ function analyzeNoise(){
   if (total < threshold){
     binOut+= "0";
     transbin+= "0";
-    polySynth.play("G2", 0.1, 0, 1.5);
+    polySynth.play("G5", 0.7, 0, 1.5);
     print(0);
     circleFill = 'black';
   }
@@ -263,7 +264,7 @@ function analyzeNoise(){
   if (total > threshold){
     binOut+= "1";
     transbin+= "1";
-    polySynth.play("G3cd Des  ", 0.1, 0, 1.5);
+    polySynth.play("G4", 1, 0, 1.5);
     print(1);
     circleFill = 'white';
   }
