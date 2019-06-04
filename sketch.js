@@ -37,6 +37,7 @@ let bHeight = 0;
 let bPad = 0;
 
 
+
 //GUI
 // let myColor = '#FFFFFF';
 // let visible = true;
@@ -95,6 +96,8 @@ function setup() {
 
   source.start();
   // // create a new Amplitude analyzer
+
+  polySynth = new p5.PolySynth();
 
   // Patch the input to an volume analyze
   fft = new p5.FFT(.8,1024);
@@ -234,6 +237,7 @@ function getText(){
   let num = parseInt(transbin,10)
   addedlet += char(num);
   sentence += addedlet;
+  polySynth.play("G2", 0.1, 0, 1.5);
   transbin = "";
   trans = false;
   return addedlet;
@@ -251,6 +255,7 @@ function analyzeNoise(){
   if (total < threshold){
     binOut+= "0";
     transbin+= "0";
+    polySynth.play("G2", 0.1, 0, 1.5);
     print(0);
     circleFill = 'black';
   }
@@ -258,6 +263,7 @@ function analyzeNoise(){
   if (total > threshold){
     binOut+= "1";
     transbin+= "1";
+    polySynth.play("G3cd Des  ", 0.1, 0, 1.5);
     print(1);
     circleFill = 'white';
   }
