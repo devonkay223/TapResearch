@@ -17,10 +17,10 @@ let sentence = "";
 let binOut = "";
 let transbin = "";
 //Audio Vars
-let Silence = 0.07;
-let threshold = 0.5; // sets midway threshold between 'loud' and 'quiet' noise
-//Buttons 
-let button;
+let Silence = 0.02; // prev 0.07
+let threshold = 1.3; // sets midway threshold between 'loud' and 'quiet' noise
+let Quiet = 0.18;
+let rate = 60;
 //Styling
 let font = 'Overpass';
 //Buttons
@@ -57,9 +57,11 @@ function setup() {
   cnv.style('vertical-align', 'top');
   // Create an Audio input
   source = new p5.AudioIn();
-    // start the Audio Input.
- // By default, it does not .connect() (to the computer speakers)
+  frameRate(rate);
+  // start the Audio Input. <-- SHANNON what is happening here?
+  // By default, it does not .connect() (to the computer speakers)
 
+  //Styling Canvas
   textHeight = height/40;
   bRight = width - (width/50);
   btop = height/45;
@@ -153,12 +155,12 @@ function mousePressed(){
 
 function draw(){
   background(0);
-  drawWaveForm();
-  drawCircAmp();
-  drawAmphistory();
+  // drawWaveForm();
+  // drawCircAmp();
+  // drawAmphistory();
   recordData();
   fill('#FFFFFF');
-  textSize(32);
+  textSize(32); // this isn't scalable
   text(binOut,50,50);
   fill('#FFFFFF');
   textSize(32); //not scalable
@@ -240,7 +242,7 @@ function getText(){
 }
 
 function analyzeNoise(){
-  if (listening){
+  if (listening){ // SHANNON why does this check for listening = true? 
     for (var i = 0; i < data.length; i=0) {
       total += data[i];
       console.log(total);
@@ -248,7 +250,7 @@ function analyzeNoise(){
     }
     print("total:" + total);
   }
-  if (total < threshold){
+  if (total > Quiet && total < threshold){
     binOut+= "0";
     transbin+= "0";
     print(0);
