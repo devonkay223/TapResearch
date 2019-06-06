@@ -17,10 +17,15 @@ let sentence = "";
 let binOut = "";
 let transbin = "";
 //Audio Vars
-let Silence = 0.07;
-let threshold = 0.5; // sets midway threshold between 'loud' and 'quiet' noise
-//Buttons 
-let button;
+let Silence = 0.02; //prev 0.07
+//OBSERVATION might be too high causinf frequent analysis
+// .0 is too low, sound emitted creates afeed back loop
+let threshold = 1.3; // sets midway threshold between 'loud' and 'quiet' noise
+let threshold2 = 0.9;
+let threshold3 = 0.4;
+// OBSERVATOIN using the crawl model a threashold of .3 will distinguish the diff between heel and toe heel
+let Quiet = .18;
+let rate  = 60; // frame rate
 //Styling
 let font = 'Overpass';
 //Buttons
@@ -35,8 +40,9 @@ let bRight3 = 0;
 let btop = 0;
 let bHeight = 0;
 let bPad = 0;
-
+//Audio Outs
 var polySynth;
+var osc;
 
 
 
@@ -60,9 +66,11 @@ function setup() {
   cnv.style('vertical-align', 'top');
   // Create an Audio input
   source = new p5.AudioIn();
-    // start the Audio Input.
- // By default, it does not .connect() (to the computer speakers)
+  frameRate(rate); //30 good for a slow even tap
+  // start the Audio Input. <-- SHANNON what is happening here? 
+  // By default, it does not .connect() (to the computer speakers)
 
+  //Styling Canvas
   textHeight = height/40;
   bRight = width - (width/50);
   btop = height/45;
@@ -96,15 +104,22 @@ function setup() {
   bRight3 = bRight - resetButton.size().width;
   resetButton.position(bRight3, btop + 2*(bHeight + bPad)); 
 
-  source.start();
-  // // create a new Amplitude analyzer
+  
+  source.start(); // SHANNON is this where you actually start the audio input?
 
+  // create polysynth for generating output audio 
   polySynth = new p5.PolySynth();
+  osc = new p5.Oscillator();
+  osc.setType('sine');
+  osc.freq(240);
+  osc.amp(0);
+  osc.start();
 
   // Patch the input to an volume analyze
   fft = new p5.FFT(.8,1024);
   fft.setInput(source);
 
+  // create a new Amplitude analyzer
   level = new p5.Amplitude();
   level.setInput(source);
 
@@ -158,10 +173,13 @@ function mousePressed(){
 
 function draw(){
   background(0);
-  drawWaveForm();
-  drawCircAmp();
-  drawAmphistory();
+  // drawWaveForm();
+  // drawCircAmp();
+  // drawAmphistory();
   recordData();
+  // QUESTION can we update text from a function other than draw? 
+  // this appears to create a new text object for each call to draw 
+  // which may be why everything is slow!
   fill('#FFFFFF');
   textSize(32);
   text(binOut,50,50);
@@ -170,66 +188,69 @@ function draw(){
   text(sentence,50,90);
 }
 
-function drawWaveForm() {
-  // Extract the spectrum from the time domain
-  const wave = fft.waveform(source);
-  // Set the stroke color to white
-  stroke(255);
-  // Turn off fill
-  noFill();
-  // Start drawing a shape
-  beginShape();
-  // Create a for-loop to draw a the connecting points of the shape of the input sound
-	wave.forEach(function (amp, i) {
-		const x = i / wave.length * width;
-		const y = map(wave[i], -1, 1, 0, (height/2));
-		vertex(x, y);
-	})
-  // End the shape
-  endShape();
-}
+// function drawWaveForm() {
+//   // Extract the spectrum from the time domain
+//   const wave = fft.waveform(source);
+//   // Set the stroke color to white
+//   stroke(255);
+//   // Turn off fill
+//   noFill();
+//   // Start drawing a shape
+//   beginShape();
+//   // Create a for-loop to draw a the connecting points of the shape of the input sound
+// 	wave.forEach(function (amp, i) {
+// 		const x = i / wave.length * width;
+// 		const y = map(wave[i], -1, 1, 0, (height/2));
+// 		vertex(x, y);
+// 	})
+//   // End the shape
+//   endShape();
+// }
 
-function drawCircAmp(){
-    stroke(255);
-    let vol = level.getLevel();
-    fill(circleFill);
-    //beginShape()
-    var y = map(vol,0,1,(height/2)-50,0);
-    ellipse(width/2,height/2,y, y);
-    //endShape()
-}
+// function drawCircAmp(){
+//     stroke(255);
+//     let vol = level.getLevel();
+//     fill(circleFill);
+//     //beginShape()
+//     var y = map(vol,0,1,(height/2)-50,0);
+//     ellipse(width/2,height/2,y, y);
+//     //endShape()
+// }
 
-function drawAmphistory(){
-  var vol = source.getLevel();
-  volhistory.push(vol);
-  //console.log(volhistory);
+// function drawAmphistory(){
+//   var vol = source.getLevel();
+//   volhistory.push(vol);
+//   //console.log(volhistory);
 
-  stroke(255);
-  beginShape();
-  noFill();
-  push();
-  var y = map(vol,0,1,height,0);
-  for (var i = 0; i < volhistory.length; i++) { //  for(var i = 0; i<innerWidth i++){
-    var y = map(volhistory[i],0,1,height,0);
-    vertex(i,y);
-  endShape();
+//   stroke(255);
+//   beginShape();
+//   noFill();
+//   push();
+//   var y = map(vol,0,1,height,0);
+//   for (var i = 0; i < volhistory.length; i++) { //  for(var i = 0; i<innerWidth i++){
+//     var y = map(volhistory[i],0,1,height,0);
+//     vertex(i,y);
+//   endShape();
 
-  if(volhistory.length > (innerWidth-50)){
-    volhistory.splice(0,1);
-    }
-  }
-}
+//   if(volhistory.length > (innerWidth-50)){
+//     volhistory.splice(0,1);
+//     }
+//   }
+// }
 
 function recordData(){
+  // take in audio input for current frame
   noise = level.getLevel();
+  //check if noise is background noise
   if (noise > Silence) {
     data.push(noise);
     console.log(noise);
-    analyzed = false;
+    analyzed = false; // indicates there is new noise input that has not been analyzed yet
   }
   else if (analyzed === false) {
+    // if there is currently just background noise we can analyse the prior chunk of data
     analyzeNoise();
-    analyzed = true;
+    analyzed = true; // the previous chunk of data has been analyzed
   }
 }
 
@@ -245,7 +266,7 @@ function getText(){
 }
 
 function analyzeNoise(){
-  if (listening){
+  if (listening){ // SHANNON why does this check if listening is true? 
     for (var i = 0; i < data.length; i=0) {
       total += data[i];
       console.log(total);
@@ -253,19 +274,36 @@ function analyzeNoise(){
     }
     print("total:" + total);
   }
-  if (total < threshold){
+
+  if (total > Quiet && total < threshold3){
     binOut+= "0";
     transbin+= "0";
-    polySynth.play("G5", 0.7, 0, 1.5);
+    osc.amp(0.5, 0.05);
     print(0);
     circleFill = 'black';
   }
 
-  if (total > threshold){
+  if (total > threshold3 && total < threshold2){
     binOut+= "1";
     transbin+= "1";
-    polySynth.play("G4", 1, 0, 1.5);
+    polySynth.play("G3", 0.4, 0, 1.9);
     print(1);
+    circleFill = 'black';
+  }
+
+  if (total > threshold2 && total < threshold){
+    binOut+= "2";
+    transbin+= "2";
+    polySynth.play("G4", 0.4, 0, 1.2);
+    print(2);
+    circleFill = 'black';
+  }
+
+  if (total > threshold){
+    binOut+= "3";
+    transbin+= "3";
+    polySynth.play("G5", 0.4, 0, 0.4);
+    print(3);
     circleFill = 'white';
   }
   total = 0
