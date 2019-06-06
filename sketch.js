@@ -28,13 +28,13 @@ var recordButton;
 var stopButton;
 var resetButton;
 //Button Constraints
-let bRight = 0;
-let bRight1 = 0; 
-let bRight2 = 0;
-let bRight3 = 0;
-let btop = 0;
-let bHeight = 0;
-let bPad = 0;
+let bRight = 0; // right padding for buttons
+let bRight1 = 0; // x location of button 1
+let bRight2 = 0; // x location of button 2
+let bRight3 = 0; // x location of button 3
+let btop = 0; // y location for the top of the first button
+let bHeight = 0; //height of the buttons
+let bPad = 0; //padding between the buttons
 
 
 //GUI
@@ -62,9 +62,9 @@ function setup() {
   // By default, it does not .connect() (to the computer speakers)
 
   //Styling Canvas
-  textHeight = height/40;
+  textHeight = 28; //height/40;
   bRight = width - (width/50);
-  btop = height/45;
+  btop = 26;
 
   recordButton = createButton('Record');
   recordButton.style('background-color', '#000000');
@@ -159,12 +159,23 @@ function draw(){
   // drawCircAmp();
   // drawAmphistory();
   recordData();
+  checkOutputLength();
   fill('#FFFFFF');
-  textSize(32); // this isn't scalable
-  text(binOut,50,50);
+  textSize(32); // this is apparently just how scaling works
+  textFont(font);
+  text(binOut,50,50); // also scales fine
   fill('#FFFFFF');
-  textSize(32); //not scalable
+  textSize(32); 
+  textFont(font);
   text(sentence,50,90);
+}
+
+function checkOutputLength(){
+  let bbox = font.textBounds(binOut, 50, 50);
+
+  if ((bbox.x + bbox.w)  == bRight1) {
+    binOut.splice(0, 1);
+  }
 }
 
 function drawWaveForm() {
