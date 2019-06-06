@@ -159,23 +159,21 @@ function draw(){
   // drawCircAmp();
   // drawAmphistory();
   recordData();
-  checkOutputLength();
+  // checkOutputLength();
   fill('#FFFFFF');
   textSize(32); // this is apparently just how scaling works
   textFont(font);
   text(binOut,50,50); // also scales fine
+  var width = textSize().width; 
+  // print('WIDTH: ' + width);
+  if ((50 + width)== bRight1){
+    print("TOO BIG");
+    binOut.splice(0, 1);
+  }
   fill('#FFFFFF');
   textSize(32); 
   textFont(font);
   text(sentence,50,90);
-}
-
-function checkOutputLength(){
-  let bbox = font.textBounds(binOut, 50, 50);
-
-  if ((bbox.x + bbox.w)  == bRight1) {
-    binOut.splice(0, 1);
-  }
 }
 
 function drawWaveForm() {
