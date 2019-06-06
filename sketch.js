@@ -15,6 +15,7 @@ let circleFill = 'black';
 //Output strings
 let sentence = "";
 let binOut = "";
+// let binOut = [];
 let transbin = "";
 //Audio Vars
 let Silence = 0.02; // prev 0.07
@@ -22,7 +23,8 @@ let threshold = 1.3; // sets midway threshold between 'loud' and 'quiet' noise
 let Quiet = 0.18;
 let rate = 60;
 //Styling
-let font = 'Overpass';
+var font;
+let fontSize = 32;
 //Buttons
 var recordButton;
 var stopButton;
@@ -51,6 +53,9 @@ let bPad = 0; //padding between the buttons
 //   getAudioContext().resume();
  //}
 
+function preload(){
+  font = loadFont("./fonts/Overpass-Regular.ttf")
+}
 
 function setup() {
   var cnv = createCanvas(window.innerWidth, window.innerHeight);
@@ -62,13 +67,13 @@ function setup() {
   // By default, it does not .connect() (to the computer speakers)
 
   //Styling Canvas
-  textHeight = 28; //height/40;
+  buttonTextHeight = 28; //height/40;
   bRight = width - (width/50);
   btop = 26;
 
   recordButton = createButton('Record');
   recordButton.style('background-color', '#000000');
-  recordButton.style('font-size', textHeight);
+  recordButton.style('font-size', buttonTextHeight);
   recordButton.style('font-family', font);
   recordButton.style('color', '#ffffff');
   recordButton.style('border-color', '#ffffff');
@@ -79,7 +84,7 @@ function setup() {
 
   stopButton = createButton('Stop');
   stopButton.style('background-color', '#000000');
-  stopButton.style('font-size', textHeight);
+  stopButton.style('font-size', buttonTextHeight);
   stopButton.style('font-family', font);
   stopButton.style('color', '#ffffff');
   stopButton.style('border-color', '#ffffff');
@@ -88,7 +93,7 @@ function setup() {
 
   resetButton = createButton('Reset');
   resetButton.style('background-color', '#000000');
-  resetButton.style('font-size', textHeight);
+  resetButton.style('font-size', buttonTextHeight);
   resetButton.style('font-family', font);
   resetButton.style('color', '#ffffff');
   resetButton.style('border-color', '#ffffff');
@@ -121,6 +126,7 @@ function toggleRecord(){
   if (!listening) {
       listening = true;
       source.start();
+      loop();
   }
 }
 
@@ -128,6 +134,7 @@ function toggleStop(){
   if(listening){
     listening = false;
     source.stop();
+    noLoop();
   }
 }
 
@@ -159,21 +166,35 @@ function draw(){
   // drawCircAmp();
   // drawAmphistory();
   recordData();
-  // checkOutputLength();
+  checkOutputLengthBinOut();
+  checkOutputLengthSentence();
   fill('#FFFFFF');
-  textSize(32); // this is apparently just how scaling works
-  textFont(font);
+  textSize(fontSize); // this is apparently just how scaling works
+  // textFont(font); NOTE font is not currently applied bc it only has english characters and were getting a lot og non english chars rn
   text(binOut,50,50); // also scales fine
-  var width = textSize().width; 
-  // print('WIDTH: ' + width);
-  if ((50 + width)== bRight1){
-    print("TOO BIG");
-    binOut.splice(0, 1);
-  }
-  fill('#FFFFFF');
-  textSize(32); 
-  textFont(font);
   text(sentence,50,90);
+}
+
+function checkOutputLengthBinOut() {
+  let bbox = font.textBounds(binOut, 50, 50, fontSize);
+
+  // print("Width: " + (bbox.x + bbox.w));
+
+  if ((bbox.x + bbox.w + 30) >= bRight1){
+    print("TOO WIDE");
+    binOut = binOut.substring(1, binOut.length);
+  }
+}
+
+function checkOutputLengthSentence() {
+  let bbox = font.textBounds(sentence, 50, 50, fontSize);
+
+  // print("Width: " + (bbox.x + bbox.w));
+
+  if ((bbox.x + bbox.w + 30) >= bRight1){
+    print("TOO WIDE");
+    sentence = sentence.substring(1, sentence.length);
+  }
 }
 
 function drawWaveForm() {
@@ -244,6 +265,7 @@ function getText(){
   let addedlet = "";
   let num = parseInt(transbin,10)
   addedlet += char(num);
+  print(addedlet);
   sentence += addedlet;
   transbin = "";
   trans = false;
