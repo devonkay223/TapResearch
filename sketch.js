@@ -241,14 +241,14 @@ function toggleStop(){
 }
 
 function toggleReset(){
+  background(0);
   toggleStop();
   binOut = "";
   sentence = "";
-  for (var i = 0; i < volhistory.length + 10; i++){
+  for (var i = 0; i < volhistory.length; i++){
     volhistory.pop();
   }
 }
-
 
 function mousePressed(){
   if ((mouseX > bRight1) && (mouseX < bRight) && (mouseY > btop) && (mouseY < btop + bHeight)){
