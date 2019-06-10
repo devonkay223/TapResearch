@@ -1,11 +1,11 @@
 //3 Graphic Visualizers with Sound Input
 
-let song;
+let song; //imported song
 let data =[];
 let volhistory = [];
 let source = null;
 let fft = null;
-let level = null;
+let level = null; // amplitude input
 let noise = null;
 let listening = false;
 let analyzed = true;
@@ -15,7 +15,6 @@ let circleFill = 'black';
 //Output strings
 let sentence = "";
 let binOut = "";
-// let binOut = [];
 let transbin = "";
 //Audio Vars
 let Silence = 0.02; // prev 0.07
@@ -45,7 +44,7 @@ let bPad = 0; //padding between the buttons
 // frameRate() is usually around 60 frames per second,
 // so 20 fps = 3 beats per second, meaning if the song is over 180 BPM,
 // we wont respond to every beat.
-var beatHoldFrames = 30;
+var beatHoldFrames = 20;
 // what amplitude level can trigger a beat?
 var beatThreshold = 0.11; 
 
@@ -55,35 +54,25 @@ var beatCutoff = 0;
 var beatDecayRate = 0.98; // how fast does beat cutoff decay?
 var framesSinceLastBeat = 0; // once this equals beatHoldFrames, beatCutoff starts to decay.
 
-
-//GUI
-// let myColor = '#FFFFFF';
-// let visible = true;
-// let guivar;
-
- //function touchStarted() {
-//   getAudioContext().resume();
- //}
+p5.disableFriendlyErrors = true; // disables FES
 
 function preload(){
   font = loadFont("./fonts/Overpass-Regular.ttf");
-  song = loadSound('underwater.mp3');
+  // song = loadSound('underwater.mp3');
 }
 
 function setup() {
-  var cnv = createCanvas(window.innerWidth, window.innerHeight);
-  cnv.style('vertical-align', 'top');
-  // Create an Audio input
-  source = new p5.AudioIn();
   frameRate(rate);
-  // start the Audio Input. <-- SHANNON what is happening here?
-  // By default, it does not .connect() (to the computer speakers)
 
-  //Styling Canvas
-  buttonTextHeight = 28; //height/40;
+  // Create Canvas
+  var cnv = createCanvas(window.innerWidth, window.innerHeight);
+  cnv.style('vertical-align', 'top'); // removes scroll bars
+
+  //Style Canvas
+  buttonTextHeight = 28; 
   bRight = width - (width/50);
   btop = 26;
-
+  //Scaling that occurs for buttons may be slowing things down?
   recordButton = createButton('Record');
   recordButton.style('background-color', '#000000');
   recordButton.style('font-size', buttonTextHeight);
@@ -113,27 +102,21 @@ function setup() {
   bRight3 = bRight - resetButton.size().width;
   resetButton.position(bRight3, btop + 2*(bHeight + bPad)); 
 
+  // Create an Audio input
+  source = new p5.AudioIn();
   source.start();
-  // // create a new Amplitude analyzer
-
-  // Patch the input to an volume analyze
-  // fft = new p5.FFT(.8,1024);
-  // fft.setInput(source);
-
+  // create new Amplitude 
   level = new p5.Amplitude();
   level.setInput(source);
   // level.setInput(song);
 
-  // gui();
-  song.play();
-  source = new p5.AudioIn();
-  source.start();
-  
+  // song.play();
+
+  // create FFT
   fft = new p5.FFT(0.9, 1024);
   fft.setInput(source);
 }
 
-//TEMP DRAW FUNCTION REAL ONE IS BELOW COMMENTED OUT 
 function draw() {
   background(0);
 
@@ -143,21 +126,20 @@ function draw() {
 
   // FFT
   var spectrum = fft.analyze();
-  noStroke();
-  
   var scaledSpectrum = splitOctaves(spectrum, 3);
   var len = scaledSpectrum.length;
   
   recordData();
+  drawWaveForm();
+  drawCircAmp();
+  drawAmphistory();
   checkOutputLengthBinOut();
   checkOutputLengthSentence();
   fill('#FFFFFF');
-  textSize(fontSize); // this is apparently just how scaling works
+  textSize(fontSize); 
   // textFont(font); NOTE font is not currently applied bc it only has english characters and were getting a lot of non english chars rn
-  text(binOut,50,50); // also scales fine
+  text(binOut,50,50); 
   text(sentence,50,90);
-  // print(scaledSpectrum);
-
 }
 
 // https://therewasaguy.github.io/p5-music-viz/demos/01d_beat_detect_amplitude/
@@ -179,7 +161,7 @@ function detectBeat(amp) {
 
 
 /**
- * https://therewasaguy.github.io/p5-music-viz/demos/05_fft_scaleOneThirdOctave_UnknownPleasures/
+ *  Source: https://therewasaguy.github.io/p5-music-viz/demos/05_fft_scaleOneThirdOctave_UnknownPleasures/
  *  Divides an fft array into octaves with each
  *  divided by three, or by a specified "slicesPerOctave".
  *  
@@ -238,17 +220,8 @@ function splitOctaves(spectrum, slicesPerOctave) {
 
   // reverse so that array has same order as original array (low to high frequencies)
   scaledSpectrum.reverse();
-
   return scaledSpectrum;
 }
-
-// function gui(){
-//   sliderRange(0,255,1)
-//   guivar = createGui('Visualizers');
-//   guivar.addGlobals('myColor','zoom');
-//
-//   noLoop();
-// }
 
 function toggleRecord(){
   getAudioContext().resume();
@@ -289,25 +262,8 @@ function mousePressed(){
   }
 }
 
-// function draw(){
-//   background(0);
-//   // drawWaveForm();
-//   // drawCircAmp();
-//   // drawAmphistory();
-//   recordData();
-//   checkOutputLengthBinOut();
-//   checkOutputLengthSentence();
-//   fill('#FFFFFF');
-//   textSize(fontSize); // this is apparently just how scaling works
-//   // textFont(font); NOTE font is not currently applied bc it only has english characters and were getting a lot of non english chars rn
-//   text(binOut,50,50); // also scales fine
-//   text(sentence,50,90);
-// }
-
 function checkOutputLengthBinOut() {
   let bbox = font.textBounds(binOut, 50, 50, fontSize);
-
-  // print("Width: " + (bbox.x + bbox.w));
 
   if ((bbox.x + bbox.w + 30) >= bRight1){
     print("TOO WIDE");
@@ -317,8 +273,6 @@ function checkOutputLengthBinOut() {
 
 function checkOutputLengthSentence() {
   let bbox = font.textBounds(sentence, 50, 50, fontSize);
-
-  // print("Width: " + (bbox.x + bbox.w));
 
   if ((bbox.x + bbox.w + 30) >= bRight1){
     print("TOO WIDE");
@@ -358,22 +312,21 @@ function drawCircAmp(){
 function drawAmphistory(){
   var vol = source.getLevel();
   volhistory.push(vol);
-  //console.log(volhistory);
 
   stroke(255);
-  beginShape();
+  beginShape(); 
   noFill();
   push();
   var y = map(vol,0,1,height,0);
-  for (var i = 0; i < volhistory.length; i++) { //  for(var i = 0; i<innerWidth i++){
+  volhistory.forEach(function (amp, i) {
     var y = map(volhistory[i],0,1,height,0);
     vertex(i,y);
-  endShape();
 
   if(volhistory.length > (innerWidth-50)){
     volhistory.splice(0,1);
     }
-  }
+  })
+  endShape();
 }
 
 function recordData(){
@@ -388,7 +341,6 @@ function recordData(){
   //   analyzed = true;
   // }
 }
-
 
 function getText(){
   let addedlet = "";
