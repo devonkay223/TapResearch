@@ -1,6 +1,6 @@
 //3 Graphic Visualizers with Sound Input
 
-//let song;
+let song;
 let data =[];
 let volhistory = [];
 let source = null;
@@ -21,7 +21,7 @@ let transbin = "";
 let Silence = 0.02; // prev 0.07
 let threshold = 1.3; // sets midway threshold between 'loud' and 'quiet' noise
 let Quiet = 0.18;
-let rate = 30;
+let rate = 60;
 //Styling
 var font;
 let fontSize = 32;
@@ -38,23 +38,36 @@ let btop = 0; // y location for the top of the first button
 let bHeight = 0; //height of the buttons
 let bPad = 0; //padding between the buttons
 
+//Beat detection
+// :: Beat Detect Variables
+// how many draw loop frames before the beatCutoff starts to decay
+// so that another beat can be triggered.
+// frameRate() is usually around 60 frames per second,
+// so 20 fps = 3 beats per second, meaning if the song is over 180 BPM,
+// we wont respond to every beat.
+var beatHoldFrames = 30;
+// what amplitude level can trigger a beat?
+var beatThreshold = 0.11; 
+
+// When we have a beat, beatCutoff will be reset to 1.1*beatThreshold, and then decay
+// Level must be greater than beatThreshold and beatCutoff before the next beat can trigger.
+var beatCutoff = 0;
+var beatDecayRate = 0.98; // how fast does beat cutoff decay?
+var framesSinceLastBeat = 0; // once this equals beatHoldFrames, beatCutoff starts to decay.
+
 
 //GUI
 // let myColor = '#FFFFFF';
 // let visible = true;
 // let guivar;
 
-
-// function preload() {
-//   //song = loadSound('underwater.mp3');
-//   }
-
  //function touchStarted() {
 //   getAudioContext().resume();
  //}
 
 function preload(){
-  font = loadFont("./fonts/Overpass-Regular.ttf")
+  font = loadFont("./fonts/Overpass-Regular.ttf");
+  song = loadSound('underwater.mp3');
 }
 
 function setup() {
@@ -109,8 +122,10 @@ function setup() {
 
   level = new p5.Amplitude();
   level.setInput(source);
+  // level.setInput(song);
 
   // gui();
+  song.play();
   source = new p5.AudioIn();
   source.start();
   
@@ -122,15 +137,46 @@ function setup() {
 function draw() {
   background(0);
 
+  // Beat Detection
+  var amp = level.getLevel();
+  detectBeat(amp);
+
+  // FFT
   var spectrum = fft.analyze();
   noStroke();
   
   var scaledSpectrum = splitOctaves(spectrum, 3);
   var len = scaledSpectrum.length;
   
-  print(scaledSpectrum);
+  recordData();
+  checkOutputLengthBinOut();
+  checkOutputLengthSentence();
+  fill('#FFFFFF');
+  textSize(fontSize); // this is apparently just how scaling works
+  // textFont(font); NOTE font is not currently applied bc it only has english characters and were getting a lot of non english chars rn
+  text(binOut,50,50); // also scales fine
+  text(sentence,50,90);
+  // print(scaledSpectrum);
 
 }
+
+// https://therewasaguy.github.io/p5-music-viz/demos/01d_beat_detect_amplitude/
+function detectBeat(amp) {
+  if (amp  > beatCutoff && amp > beatThreshold){
+    analyzeNoise(); // onBeat(); this should be a the action for a new beat
+    beatCutoff = amp *1.2;
+    framesSinceLastBeat = 0;
+  } else{
+    if (framesSinceLastBeat <= beatHoldFrames){
+      framesSinceLastBeat ++;
+    }
+    else{
+      beatCutoff *= beatDecayRate;
+      beatCutoff = Math.max(beatCutoff, beatThreshold);
+    }
+  }
+}
+
 
 /**
  * https://therewasaguy.github.io/p5-music-viz/demos/05_fft_scaleOneThirdOctave_UnknownPleasures/
@@ -337,10 +383,10 @@ function recordData(){
     console.log(noise);
     analyzed = false;
   }
-  else if (analyzed === false) {
-    analyzeNoise();
-    analyzed = true;
-  }
+  // else if (analyzed === false) {
+  //   // analyzeNoise();
+  //   analyzed = true;
+  // }
 }
 
 
