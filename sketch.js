@@ -21,7 +21,7 @@ let transbin = "";
 let Silence = 0.02; // prev 0.07
 let threshold = 1.3; // sets midway threshold between 'loud' and 'quiet' noise
 let Quiet = 0.18;
-let rate = 60;
+let rate = 30;
 //Styling
 var font;
 let fontSize = 32;
@@ -104,13 +104,96 @@ function setup() {
   // // create a new Amplitude analyzer
 
   // Patch the input to an volume analyze
-  fft = new p5.FFT(.8,1024);
-  fft.setInput(source);
+  // fft = new p5.FFT(.8,1024);
+  // fft.setInput(source);
 
   level = new p5.Amplitude();
   level.setInput(source);
 
   // gui();
+  source = new p5.AudioIn();
+  source.start();
+  
+  fft = new p5.FFT(0.9, 1024);
+  fft.setInput(source);
+}
+
+//TEMP DRAW FUNCTION REAL ONE IS BELOW COMMENTED OUT 
+function draw() {
+  background(0);
+
+  var spectrum = fft.analyze();
+  noStroke();
+  
+  var scaledSpectrum = splitOctaves(spectrum, 3);
+  var len = scaledSpectrum.length;
+  
+  print(scaledSpectrum);
+
+}
+
+/**
+ * https://therewasaguy.github.io/p5-music-viz/demos/05_fft_scaleOneThirdOctave_UnknownPleasures/
+ *  Divides an fft array into octaves with each
+ *  divided by three, or by a specified "slicesPerOctave".
+ *  
+ *  There are 10 octaves in the range 20 - 20,000 Hz,
+ *  so this will result in 10 * slicesPerOctave + 1
+ *
+ *  @method splitOctaves
+ *  @param {Array} spectrum Array of fft.analyze() values
+ *  @param {Number} [slicesPerOctave] defaults to thirds
+ *  @return {Array} scaledSpectrum array of the spectrum reorganized by division
+ *                                 of octaves
+ */
+function splitOctaves(spectrum, slicesPerOctave) {
+  var scaledSpectrum = [];
+  var len = spectrum.length; //1024 ~ defined as the upper input for fft above
+
+  // default to thirds
+  var n = slicesPerOctave|| 3;
+  var nthRootOfTwo = Math.pow(2, 1/n);
+  // print(nthRootOfTwo);
+
+  // the last N bins get their own 
+  var lowestBin = slicesPerOctave;
+
+  var binIndex = len - 1;
+  var i = binIndex; //1023
+  // print(binIndex);
+
+  while (i > lowestBin) {
+    var nextBinIndex = round( binIndex/nthRootOfTwo ); //whats happening here?
+    // print(nextBinIndex);
+
+    if (nextBinIndex === 1) return;
+
+    var total = 0;
+    var numBins = 0;
+
+    // add up all of the values for the frequencies
+    for (i = binIndex; i > nextBinIndex; i--) {
+      total += spectrum[i];
+      numBins++;
+    }
+
+    // divide total sum by number of bins
+    var energy = total/numBins;
+    scaledSpectrum.push(energy);
+
+    // keep the loop going
+    binIndex = nextBinIndex;
+  }
+
+  // add the lowest bins at the end
+  for (var j = i; j > 0; j--) {
+    scaledSpectrum.push(spectrum[j]);
+  }
+
+  // reverse so that array has same order as original array (low to high frequencies)
+  scaledSpectrum.reverse();
+
+  return scaledSpectrum;
 }
 
 // function gui(){
@@ -160,20 +243,20 @@ function mousePressed(){
   }
 }
 
-function draw(){
-  background(0);
-  // drawWaveForm();
-  // drawCircAmp();
-  // drawAmphistory();
-  recordData();
-  checkOutputLengthBinOut();
-  checkOutputLengthSentence();
-  fill('#FFFFFF');
-  textSize(fontSize); // this is apparently just how scaling works
-  // textFont(font); NOTE font is not currently applied bc it only has english characters and were getting a lot og non english chars rn
-  text(binOut,50,50); // also scales fine
-  text(sentence,50,90);
-}
+// function draw(){
+//   background(0);
+//   // drawWaveForm();
+//   // drawCircAmp();
+//   // drawAmphistory();
+//   recordData();
+//   checkOutputLengthBinOut();
+//   checkOutputLengthSentence();
+//   fill('#FFFFFF');
+//   textSize(fontSize); // this is apparently just how scaling works
+//   // textFont(font); NOTE font is not currently applied bc it only has english characters and were getting a lot of non english chars rn
+//   text(binOut,50,50); // also scales fine
+//   text(sentence,50,90);
+// }
 
 function checkOutputLengthBinOut() {
   let bbox = font.textBounds(binOut, 50, 50, fontSize);
