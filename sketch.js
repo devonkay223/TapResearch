@@ -28,6 +28,7 @@ let fontSize = 32;
 var recordButton;
 var stopButton;
 var resetButton;
+var thersholdSlider;
 //Button Constraints
 let bRight = 0; // right padding for buttons
 let bRight1 = 0; // x location of button 1
@@ -36,6 +37,7 @@ let bRight3 = 0; // x location of button 3
 let btop = 0; // y location for the top of the first button
 let bHeight = 0; //height of the buttons
 let bPad = 0; //padding between the buttons
+let lineY = 100;
 
 //Beat detection
 // :: Beat Detect Variables
@@ -101,6 +103,19 @@ function setup() {
   resetButton.style('border-color', '#ffffff');
   bRight3 = bRight - resetButton.size().width;
   resetButton.position(bRight3, btop + 2*(bHeight + bPad)); 
+
+  line(0, lineY, width, lineY);
+  stroke(126);
+  // let top = 50; //map(threshold, 0, 5, height, 0);
+  // thersholdSlider = createSlider(0, height, top, 10);
+  // thersholdSlider.position(0, 230);
+  // w = width + "px";
+  // h = height + "px";
+  // thersholdSlider.style('width', w);
+  // thersholdSlider.style('height', h);
+  // thersholdSlider.style('-webkit-appearance', 'slider-vertical');
+  // thersholdSlider.style('background', 'none');
+  // thersholdSlider.style('outline', 'none');
 
   // Create an Audio input
   source = new p5.AudioIn();
@@ -241,8 +256,12 @@ function toggleStop(){
 }
 
 function toggleReset(){
-  background(0);
   toggleStop();
+  clear();
+  background(0);
+  drawWaveForm();
+  circleFill = 'black';p5.js
+  drawCircAmp();
   binOut = "";
   sentence = "";
   for (var i = 0; i < volhistory.length; i++){
@@ -250,15 +269,22 @@ function toggleReset(){
   }
 }
 
+function setThreshold(){
+  
+}
+
 function mousePressed(){
   if ((mouseX > bRight1) && (mouseX < bRight) && (mouseY > btop) && (mouseY < btop + bHeight)){
     toggleRecord();
   }
-  if ((mouseX > bRight2) && (mouseX < bRight) && (mouseY > (btop + bHeight + bPad)) && (mouseY < (btop + 2*bHeight))){
+  else if ((mouseX > bRight2) && (mouseX < bRight) && (mouseY > (btop + bHeight + bPad)) && (mouseY < (btop + 2*bHeight))){
     toggleStop();
   }
-  if ((mouseX > bRight3) && (mouseX < bRight) && (mouseY > (btop + 2*(bHeight + bPad)) && (mouseY < (btop + 3*bHeight + 2*bPad)))){
+  else if ((mouseX > bRight3) && (mouseX < bRight) && (mouseY > (btop + 2*(bHeight + bPad)) && (mouseY < (btop + 3*bHeight + 2*bPad)))){
     toggleReset();
+  }
+  else if((mouseY < lineY+ 5) && (mouseY > lineY-5)){
+    setThreshold();
   }
 }
 
