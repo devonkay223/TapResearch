@@ -38,6 +38,7 @@ let btop = 0; // y location for the top of the first button
 let bHeight = 0; //height of the buttons
 let bPad = 0; //padding between the buttons
 let lineY = 100;
+let lineQ = 500;
 
 //Beat detection
 // :: Beat Detect Variables
@@ -104,8 +105,8 @@ function setup() {
   bRight3 = bRight - resetButton.size().width;
   resetButton.position(bRight3, btop + 2*(bHeight + bPad)); 
 
-  line(0, lineY, width, lineY);
-  stroke(126);
+  // lineQ = map(Quiet, 0, height, 5, 0);
+
   // let top = 50; //map(threshold, 0, 5, height, 0);
   // thersholdSlider = createSlider(0, height, top, 10);
   // thersholdSlider.position(0, 230);
@@ -148,6 +149,8 @@ function draw() {
   drawWaveForm();
   drawCircAmp();
   drawAmphistory();
+  setThreshold();
+  setQuiet();
   checkOutputLengthBinOut();
   checkOutputLengthSentence();
   fill('#FFFFFF');
@@ -270,7 +273,34 @@ function toggleReset(){
 }
 
 function setThreshold(){
-  
+  stroke('white');
+  line(0, lineY, width, lineY);
+}
+
+function setQuiet(){
+  stroke('gray');
+  line(0, lineQ, width, lineQ);
+}
+
+function mouseDragged() {
+  if ((mouseY < lineY + 30) && (mouseY > lineY - 30)){
+    lineY = mouseY;
+    threshold = map(lineY, 0, height, 5, 0);
+    print("threshold :" + threshold);
+  }
+  if ((mouseY < lineQ + 30) && (mouseY > lineQ - 30)){
+    lineQ = mouseY;
+    Quiet = map(lineQ, 0, height, 5, 0);
+    print("quiet :" + Quiet);
+  }
+}
+
+function keyPressed() {
+  if (keyCode === 81){
+    print("true");
+    return true;
+  }
+  else return false;
 }
 
 function mousePressed(){
@@ -282,9 +312,6 @@ function mousePressed(){
   }
   else if ((mouseX > bRight3) && (mouseX < bRight) && (mouseY > (btop + 2*(bHeight + bPad)) && (mouseY < (btop + 3*bHeight + 2*bPad)))){
     toggleReset();
-  }
-  else if((mouseY < lineY+ 5) && (mouseY > lineY-5)){
-    setThreshold();
   }
 }
 
