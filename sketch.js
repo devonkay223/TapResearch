@@ -12,6 +12,7 @@ let analyzed = true;
 let trans = false;
 let total = 0.0;
 let circleFill = 'black';
+let newDraw = 1;
 //Output strings
 let sentence = "";
 let binOut = "";
@@ -105,22 +106,9 @@ function setup() {
   bRight3 = bRight - resetButton.size().width;
   resetButton.position(bRight3, btop + 2*(bHeight + bPad)); 
 
-  // lineQ = map(Quiet, 0, height, 5, 0);
-
-  // let top = 50; //map(threshold, 0, 5, height, 0);
-  // thersholdSlider = createSlider(0, height, top, 10);
-  // thersholdSlider.position(0, 230);
-  // w = width + "px";
-  // h = height + "px";
-  // thersholdSlider.style('width', w);
-  // thersholdSlider.style('height', h);
-  // thersholdSlider.style('-webkit-appearance', 'slider-vertical');
-  // thersholdSlider.style('background', 'none');
-  // thersholdSlider.style('outline', 'none');
-
   // Create an Audio input
   source = new p5.AudioIn();
-  source.start();
+  // source.start();
   // create new Amplitude 
   level = new p5.Amplitude();
   level.setInput(source);
@@ -132,8 +120,11 @@ function setup() {
   fft = new p5.FFT(0.9, 1024);
   fft.setInput(source);
 
-  if(newDraw = )
-  // noLoop();
+  if(newDraw == 1){
+    source.stop();
+    listening = false;
+    newDraw = 0;
+  }
 }
 
 function draw() {
@@ -151,7 +142,9 @@ function draw() {
   recordData();
   drawWaveForm();
   drawCircAmp();
-  drawAmphistory();
+  // if(listening){
+    drawAmphistory();
+  // }
   setThreshold();
   setQuiet();
   checkOutputLengthBinOut();
@@ -249,7 +242,7 @@ function toggleRecord(){
   if (!listening) {
       listening = true;
       source.start();
-      loop();
+      // loop();
   }
 }
 
@@ -257,11 +250,12 @@ function toggleStop(){
   if(listening){
     listening = false;
     source.stop();
-    noLoop();
+    // noLoop();
   }
 }
 
 function toggleReset(){
+  newDraw = 1;
   toggleStop();
   clear();
   background(0);
@@ -286,21 +280,24 @@ function setQuiet(){
   line(0, lineQ, width, lineQ);
 }
 
-// function mouseDragged() {
-//   if ((mouseY < lineY + 30) && (mouseY > lineY - 30)){
-//     lineY = mouseY;
-//     threshold = map(lineY, 0, height, 5, 0);
-//     print("threshold :" + threshold);
-//   }
-//   if ((mouseY < lineQ + 30) && (mouseY > lineQ - 30) && keyPressed()){
-//     lineQ = mouseY;
-//     Quiet = map(lineQ, 0, height, 5, 0);
-//     print("quiet :" + Quiet);
-//   }
-// }
+function mouseDragged() {
+  let Q = keyPressed();
+  if ((mouseY < lineY + 30) && (mouseY > lineY - 30)){
+    lineY = mouseY;
+    threshold = map(lineY, 0, height, 5, 0);
+    print("threshold :" + threshold);
+    Q = false;
+  }
+  if ((mouseY < lineQ + 30) && (mouseY > lineQ - 30) && Q){
+    lineQ = mouseY;
+    // Q = false;
+    Quiet = map(lineQ, 0, height, 5, 0);
+    print("quiet :" + Quiet);
+  }
+}
 
 function keyPressed() {
-  if (keyCode == 'q'){
+  if (keyCode === 81){
     print("true");
     return true;
   }
@@ -368,7 +365,9 @@ function drawCircAmp(){
 
 function drawAmphistory(){
   var vol = source.getLevel();
-  volhistory.push(vol);
+  if(listening){
+    volhistory.push(vol);
+  }
 
   stroke(255);
   beginShape(); 
@@ -439,6 +438,7 @@ function analyzeNoise(){
 }
 
 function windowResized() {
+  newDraw = 0;
   resizeCanvas(window.innerWidth, window.innerHeight);
   recordButton.remove();
   stopButton.remove();
