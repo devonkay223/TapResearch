@@ -319,7 +319,7 @@ function mousePressed(){
 function checkOutputLengthBinOut() {
   let bbox = font.textBounds(binOut, 50, 50, fontSize);
 
-  if ((bbox.x + bbox.w + 30) >= bRight1){
+  if ((bbox.x + bbox.w + 50) >= bRight1){
     print("TOO WIDE");
     binOut = binOut.substring(1, binOut.length);
   }
@@ -328,7 +328,7 @@ function checkOutputLengthBinOut() {
 function checkOutputLengthSentence() {
   let bbox = font.textBounds(sentence, 50, 50, fontSize);
 
-  if ((bbox.x + bbox.w + 30) >= bRight1){
+  if ((bbox.x + bbox.w + 50) >= bRight1){
     print("TOO WIDE");
     sentence = sentence.substring(1, sentence.length);
   }
