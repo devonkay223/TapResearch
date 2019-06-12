@@ -130,6 +130,8 @@ function setup() {
   // create FFT
   fft = new p5.FFT(0.9, 1024);
   fft.setInput(source);
+
+  noLoop()
 }
 
 function draw() {
