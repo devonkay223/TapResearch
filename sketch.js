@@ -132,7 +132,8 @@ function setup() {
   fft = new p5.FFT(0.9, 1024);
   fft.setInput(source);
 
-  noLoop()
+  if(newDraw = )
+  // noLoop();
 }
 
 function draw() {
@@ -269,6 +270,7 @@ function toggleReset(){
   drawCircAmp();
   binOut = "";
   sentence = "";
+  transbin = "";
   for (var i = 0; i < volhistory.length; i++){
     volhistory.pop();
   }
@@ -284,21 +286,21 @@ function setQuiet(){
   line(0, lineQ, width, lineQ);
 }
 
-function mouseDragged() {
-  if ((mouseY < lineY + 30) && (mouseY > lineY - 30)){
-    lineY = mouseY;
-    threshold = map(lineY, 0, height, 5, 0);
-    print("threshold :" + threshold);
-  }
-  if ((mouseY < lineQ + 30) && (mouseY > lineQ - 30)){
-    lineQ = mouseY;
-    Quiet = map(lineQ, 0, height, 5, 0);
-    print("quiet :" + Quiet);
-  }
-}
+// function mouseDragged() {
+//   if ((mouseY < lineY + 30) && (mouseY > lineY - 30)){
+//     lineY = mouseY;
+//     threshold = map(lineY, 0, height, 5, 0);
+//     print("threshold :" + threshold);
+//   }
+//   if ((mouseY < lineQ + 30) && (mouseY > lineQ - 30) && keyPressed()){
+//     lineQ = mouseY;
+//     Quiet = map(lineQ, 0, height, 5, 0);
+//     print("quiet :" + Quiet);
+//   }
+// }
 
 function keyPressed() {
-  if (keyCode === 81){
+  if (keyCode == 'q'){
     print("true");
     return true;
   }
