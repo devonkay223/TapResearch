@@ -41,6 +41,9 @@ let bPad = 0; //padding between the buttons
 let lineY = 100;
 let lineQ = 500;
 
+let w = window.innerWidth / 64
+
+
 //Beat detection
 // :: Beat Detect Variables
 // how many draw loop frames before the beatCutoff starts to decay
@@ -106,6 +109,8 @@ function setup() {
   bRight3 = bRight - resetButton.size().width;
   resetButton.position(bRight3, btop + 2*(bHeight + bPad));
 
+  colorMode(HSB);
+
   // Create an Audio input
   source = new p5.AudioIn();
   // source.start();
@@ -142,8 +147,9 @@ function draw() {
   recordData();
   drawWaveForm();
   drawCircAmp();
+  drawFFTLive();
   // if(listening){
-    drawAmphistory();
+  drawAmphistory();
   // }
   setThreshold();
   setQuiet();
@@ -373,16 +379,32 @@ function drawAmphistory(){
   beginShape();
   noFill();
   push();
-  var y = map(vol,0,1,height,0);
+  //var y = map(vol,0,2,height,0);
   volhistory.forEach(function (amp, i) {
     var y = map(volhistory[i],0,1,height,0);
-    vertex(i,y);
+    vertex(i,y-20);
 
   if(volhistory.length > (innerWidth-50)){
     volhistory.splice(0,1);
     }
   })
   endShape();
+}
+
+function drawFFTLive(){
+  var spectrum = fft.analyze();
+  //console.log(spectrum);
+  //stroke(255);
+  noStroke();
+  //beginShape();
+  for (var i = 0; i < spectrum.length; i++) {
+    var amp = spectrum[i];
+    var y = map(amp, 0, 256, height, 0);
+    //fill(i, 255, 255);
+    //fill(27,87,66);
+    fill(color(27,87,66));
+    rect(i * w, y, w-10, height - y);
+  }
 }
 
 function recordData(){
