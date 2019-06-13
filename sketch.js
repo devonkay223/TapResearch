@@ -267,7 +267,6 @@ function toggleReset(){
   transbin = "";
   while (volhistory.length > 0){
     volhistory.pop();
-    console.log(volhistory.length)
   }
 }
 
