@@ -50,7 +50,7 @@ let lineQ = 500;
 // we wont respond to every beat.
 var beatHoldFrames = 20;
 // what amplitude level can trigger a beat?
-var beatThreshold = 0.11; 
+var beatThreshold = 0.11;
 
 // When we have a beat, beatCutoff will be reset to 1.1*beatThreshold, and then decay
 // Level must be greater than beatThreshold and beatCutoff before the next beat can trigger.
@@ -73,7 +73,7 @@ function setup() {
   cnv.style('vertical-align', 'top'); // removes scroll bars
 
   //Style Canvas
-  buttonTextHeight = 28; 
+  buttonTextHeight = 28;
   bRight = width - (width/50);
   btop = 26;
   //Scaling that occurs for buttons may be slowing things down?
@@ -104,12 +104,12 @@ function setup() {
   resetButton.style('color', '#ffffff');
   resetButton.style('border-color', '#ffffff');
   bRight3 = bRight - resetButton.size().width;
-  resetButton.position(bRight3, btop + 2*(bHeight + bPad)); 
+  resetButton.position(bRight3, btop + 2*(bHeight + bPad));
 
   // Create an Audio input
   source = new p5.AudioIn();
   // source.start();
-  // create new Amplitude 
+  // create new Amplitude
   level = new p5.Amplitude();
   level.setInput(source);
   // level.setInput(song);
@@ -138,7 +138,7 @@ function draw() {
   var spectrum = fft.analyze();
   var scaledSpectrum = splitOctaves(spectrum, 3);
   var len = scaledSpectrum.length;
-  
+
   recordData();
   drawWaveForm();
   drawCircAmp();
@@ -150,9 +150,9 @@ function draw() {
   checkOutputLengthBinOut();
   checkOutputLengthSentence();
   fill('#FFFFFF');
-  textSize(fontSize); 
+  textSize(fontSize);
   // textFont(font); NOTE font is not currently applied bc it only has english characters and were getting a lot of non english chars rn
-  text(binOut,50,50); 
+  text(binOut,50,50);
   text(sentence,50,90);
 }
 
@@ -178,7 +178,7 @@ function detectBeat(amp) {
  *  Source: https://therewasaguy.github.io/p5-music-viz/demos/05_fft_scaleOneThirdOctave_UnknownPleasures/
  *  Divides an fft array into octaves with each
  *  divided by three, or by a specified "slicesPerOctave".
- *  
+ *
  *  There are 10 octaves in the range 20 - 20,000 Hz,
  *  so this will result in 10 * slicesPerOctave + 1
  *
@@ -197,7 +197,7 @@ function splitOctaves(spectrum, slicesPerOctave) {
   var nthRootOfTwo = Math.pow(2, 1/n);
   // print(nthRootOfTwo);
 
-  // the last N bins get their own 
+  // the last N bins get their own
   var lowestBin = slicesPerOctave;
 
   var binIndex = len - 1;
@@ -265,8 +265,9 @@ function toggleReset(){
   binOut = "";
   sentence = "";
   transbin = "";
-  for (var i = 0; i < volhistory.length; i++){
+  while (volhistory.length > 0){
     volhistory.pop();
+    console.log(volhistory.length)
   }
 }
 
@@ -370,7 +371,7 @@ function drawAmphistory(){
   }
 
   stroke(255);
-  beginShape(); 
+  beginShape();
   noFill();
   push();
   var y = map(vol,0,1,height,0);
@@ -410,7 +411,7 @@ function getText(){
 }
 
 function analyzeNoise(){
-  if (listening){ // SHANNON why does this check for listening = true? 
+  if (listening){ // SHANNON why does this check for listening = true?
     for (var i = 0; i < data.length; i=0) {
       total += data[i];
       console.log(total);
