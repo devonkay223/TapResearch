@@ -125,9 +125,9 @@ function setup() {
   fft = new p5.FFT(0.9, 1024);
   fft.setInput(source);
 
-  if(newDraw == 1){
-    source.stop();
-    listening = false;
+  if(newDraw == 0){
+    source.start();
+    listening = true;
     newDraw = 0;
   }
 }
