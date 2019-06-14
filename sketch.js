@@ -18,7 +18,7 @@ let sentence = "";
 let binOut = "";
 let transbin = "";
 //Audio Vars
-let Silence = 0.02; // prev 0.07
+let silence = 0.02; // prev 0.07
 let threshold = 1.3; // sets midway threshold between 'loud' and 'quiet' noise
 let quiet = 0.18;
 let rate = 60;
@@ -416,7 +416,7 @@ function drawFFTLive(){
 
 function recordData(){
   noise = level.getLevel();
-  if (noise > Silence) {
+  if (noise > silence) {
     data.push(noise);
     console.log(noise);
     analyzed = false;
