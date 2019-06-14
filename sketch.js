@@ -1,4 +1,4 @@
-//3 Graphic Visualizers with Sound Input
+quiet//3 Graphic Visualizers with Sound Input
 
 let song; //imported song
 let data =[];
@@ -20,7 +20,7 @@ let transbin = "";
 //Audio Vars
 let Silence = 0.02; // prev 0.07
 let threshold = 1.3; // sets midway threshold between 'loud' and 'quiet' noise
-let Quiet = 0.18;
+let quiet = 0.18;
 let rate = 60;
 //Styling
 var font;
@@ -42,6 +42,8 @@ let lineY = 100;
 let lineQ = 500;
 
 let w = window.innerWidth / 64
+let lock = true;
+let quietlock = false;
 
 
 //Beat detection
@@ -286,28 +288,33 @@ function setQuiet(){
   line(0, lineQ, width, lineQ);
 }
 
+
 function mouseDragged() {
-  let Q = keyPressed();
-  if ((mouseY < lineY + 30) && (mouseY > lineY - 30)){
-    lineY = mouseY;
-    threshold = map(lineY, 0, height, 5, 0);
-    print("threshold :" + threshold);
-    Q = false;
-  }
-  if ((mouseY < lineQ + 30) && (mouseY > lineQ - 30) && Q){
-    lineQ = mouseY;
-    // Q = false;
-    Quiet = map(lineQ, 0, height, 5, 0);
-    print("quiet :" + Quiet);
+  if(lock === true){
+    if ((mouseY < lineY + 30) && (mouseY > lineY - 30)){
+      lineY = mouseY;
+      threshold = map(lineY, 0, height, 5, 0);
+      print("threshold :" + threshold);
+      }
+    }
+  if(quietlock === true){
+    if ((mouseY < lineQ + 30) && (mouseY > lineQ - 30)){
+      lineQ = mouseY
+      quiet = map(lineQ, 0, height, 5, 0);
+      print("quiet :" + quiet);
+    }
   }
 }
 
+
 function keyPressed() {
   if (keyCode === 81){
-    print("true");
-    return true;
+    print("Q Pressed")
+    lock = !lock;
+    print("lock" + lock)
+    quietlock = !quietlock
+    print("quietlock" + quietlock)
   }
-  else return false;
 }
 
 function mousePressed(){
@@ -440,7 +447,7 @@ function analyzeNoise(){
     }
     print("total:" + total);
   }
-  if (total > Quiet && total < threshold){
+  if (total > quiet && total < threshold){
     binOut+= "0";
     transbin+= "0";
     print(0);
