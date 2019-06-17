@@ -40,6 +40,7 @@ let bHeight = 0; //height of the buttons
 let bPad = 0; //padding between the buttons
 let lineY = 100;
 let lineQ = 500;
+let filter = null;
 
 //Beat detection
 // :: Beat Detect Variables
@@ -62,7 +63,12 @@ p5.disableFriendlyErrors = true; // disables FES
 
 function preload(){
   font = loadFont("./fonts/Overpass-Regular.ttf");
-  // song = loadSound('underwater.mp3');
+  source = loadSound('TapSamples/MedCrawls.mp3');
+  // source = new p5.AudioIn();
+
+  source.disconnect();
+  filter = new p5.HighPass();
+  source.connect(filter);
 }
 
 function setup() {
@@ -107,7 +113,7 @@ function setup() {
   resetButton.position(bRight3, btop + 2*(bHeight + bPad)); 
 
   // Create an Audio input
-  source = new p5.AudioIn();
+  
   // source.start();
   // create new Amplitude 
   level = new p5.Amplitude();
@@ -117,7 +123,7 @@ function setup() {
   // song.play();
 
   // create FFT
-  fft = new p5.FFT(0.9, 1024);
+  fft = new p5.FFT(0.2, 64);
   fft.setInput(source);
 
   if(newDraw == 1){
@@ -125,6 +131,7 @@ function setup() {
     listening = false;
     newDraw = 0;
   }
+  noLoop();
 }
 
 function draw() {
@@ -135,15 +142,15 @@ function draw() {
   detectBeat(amp);
 
   // FFT
-  var spectrum = fft.analyze();
-  var scaledSpectrum = splitOctaves(spectrum, 3);
-  var len = scaledSpectrum.length;
+  spectrum = fft.analyze();
+  // var scaledSpectrum = splitOctaves(spectrum, 3);
+  // var len = scaledSpectrum.length;
   
   recordData();
-  drawWaveForm();
-  drawCircAmp();
-  // if(listening){
-    drawAmphistory();
+  // drawWaveForm();
+  // drawCircAmp();
+  // // if(listening){
+  // drawAmphistory();
   // }
   setThreshold();
   setQuiet();
@@ -160,6 +167,7 @@ function draw() {
 function detectBeat(amp) {
   if (amp  > beatCutoff && amp > beatThreshold){
     analyzeNoise(); // onBeat(); this should be a the action for a new beat
+    print("BEAT");
     beatCutoff = amp *1.2;
     framesSinceLastBeat = 0;
   } else{
@@ -237,20 +245,34 @@ function splitOctaves(spectrum, slicesPerOctave) {
   return scaledSpectrum;
 }
 
+// function scaleFFT(spectrumIn){
+//   var scaledSpectrum = [];
+//   var temp = 0;
+//   var count = 0;
+
+//   for (var i = 0; i < 1024; i++){
+//     temp += spectrumIn[i]
+//     if(count ==)
+//     count++;
+//   }
+// }
+
 function toggleRecord(){
   getAudioContext().resume();
   if (!listening) {
       listening = true;
-      source.start();
-      // loop();
+      // source.start();
+      source.play();
+      loop();
   }
 }
 
 function toggleStop(){
+  print(listening);
   if(listening){
     listening = false;
     source.stop();
-    // noLoop();
+    noLoop();
   }
 }
 
@@ -285,14 +307,14 @@ function mouseDragged() {
   if ((mouseY < lineY + 30) && (mouseY > lineY - 30)){
     lineY = mouseY;
     threshold = map(lineY, 0, height, 5, 0);
-    print("threshold :" + threshold);
+    // print("threshold :" + threshold);
     Q = false;
   }
   if ((mouseY < lineQ + 30) && (mouseY > lineQ - 30) && Q){
     lineQ = mouseY;
     // Q = false;
     Quiet = map(lineQ, 0, height, 5, 0);
-    print("quiet :" + Quiet);
+    // print("quiet :" + Quiet);
   }
 }
 
@@ -355,7 +377,7 @@ function drawWaveForm() {
 
 function drawCircAmp(){
     stroke(255);
-    let vol = level.getLevel();
+    // let vol = level.getLevel();
     fill(circleFill);
     //beginShape()
     var y = map(vol,0,1,(height/2)-50,0);
@@ -364,7 +386,7 @@ function drawCircAmp(){
 }
 
 function drawAmphistory(){
-  var vol = source.getLevel();
+  // var vol = source.getLevel();
   if(listening){
     volhistory.push(vol);
   }
@@ -386,12 +408,18 @@ function drawAmphistory(){
 }
 
 function recordData(){
-  noise = level.getLevel();
-  if (noise > Silence) {
-    data.push(noise);
-    console.log(noise);
-    analyzed = false;
-  }
+  let freq = 5000;
+  filter.freq(freq);
+  var spectrum = fft.analyze();
+  data.push(spectrum);
+  // print(spectrum);
+
+  // noise = level.getLevel();
+  // if (noise > Silence) {
+  //   data.push(noise);
+  //   console.log(noise);
+  //   analyzed = false;
+  // }
   // else if (analyzed === false) {
   //   // analyzeNoise();
   //   analyzed = true;
@@ -410,31 +438,40 @@ function getText(){
 }
 
 function analyzeNoise(){
-  if (listening){ // SHANNON why does this check for listening = true? 
-    for (var i = 0; i < data.length; i=0) {
-      total += data[i];
-      console.log(total);
-      data.shift(i);
-    }
-    print("total:" + total);
+  var sum = 0;
+  for(var i = 0; i < data.length; i++){
+    sum += data[i][5];
+    // print(sum);
   }
-  if (total > Quiet && total < threshold){
-    binOut+= "0";
-    transbin+= "0";
-    print(0);
-    circleFill = 'black';
+  // print("LENGTH" + data.length);
+  if(sum/data.length > 100){
+    print("out");
   }
+  // if (listening){ // SHANNON why does this check for listening = true? 
+  //   for (var i = 0; i < data.length; i=0) {
+  //     total += data[i];
+  //     console.log(total);
+  //     data.shift(i);
+  //   }
+  //   print("total:" + total);
+  // }
+  // if (total > Quiet && total < threshold){
+  //   binOut+= "0";
+  //   transbin+= "0";
+  //   print(0);
+  //   circleFill = 'black';
+  // }
 
-  if (total > threshold){
-    binOut+= "1";
-    transbin+= "1";
-    print(1);
-    circleFill = 'white';
-  }
-  total = 0
-  if (transbin.length == 8){
-    getText();
-  }
+  // if (total > threshold){
+  //   binOut+= "1";
+  //   transbin+= "1";
+  //   print(1);
+  //   circleFill = 'white';
+  // }
+  // total = 0
+  // if (transbin.length == 8){
+  //   getText();
+  // }
 }
 
 function windowResized() {
@@ -446,14 +483,3 @@ function windowResized() {
   setup();
 }
 
-// function keyPressed(e) {
-//   // spacebar pauses
-//   if (e.keyCode == 32) {
-//     //var context = new AudioContext();
-//     if (song.isPlaying()) {
-//       song.pause();
-//     } else {
-//       song.play();
-//     }
-//   }
-// }
