@@ -51,7 +51,7 @@ let filter = null;
 // we wont respond to every beat.
 var beatHoldFrames = 20;
 // what amplitude level can trigger a beat?
-var beatThreshold = 0.11; 
+var beatThreshold = 0.05; 
 
 // When we have a beat, beatCutoff will be reset to 1.1*beatThreshold, and then decay
 // Level must be greater than beatThreshold and beatCutoff before the next beat can trigger.
@@ -64,6 +64,7 @@ p5.disableFriendlyErrors = true; // disables FES
 function preload(){
   font = loadFont("./fonts/Overpass-Regular.ttf");
   source = loadSound('TapSamples/MedCrawls.mp3');
+  source2 = loadSound('TapSamples/MedCrawls.mp3');
   // source = new p5.AudioIn();
 
   source.disconnect();
@@ -117,7 +118,7 @@ function setup() {
   // source.start();
   // create new Amplitude 
   level = new p5.Amplitude();
-  level.setInput(source);
+  level.setInput(source2);
   // level.setInput(song);
 
   // song.play();
