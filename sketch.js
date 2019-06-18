@@ -49,14 +49,14 @@ let filter = null;
 // frameRate() is usually around 60 frames per second,
 // so 20 fps = 3 beats per second, meaning if the song is over 180 BPM,
 // we wont respond to every beat.
-var beatHoldFrames = 20;
+var beatHoldFrames = 1;
 // what amplitude level can trigger a beat?
-var beatThreshold = 0.05; 
+var beatThreshold = 0.05; //0.11 by default
 
 // When we have a beat, beatCutoff will be reset to 1.1*beatThreshold, and then decay
 // Level must be greater than beatThreshold and beatCutoff before the next beat can trigger.
 var beatCutoff = 0;
-var beatDecayRate = 0.98; // how fast does beat cutoff decay?
+var beatDecayRate = .98; // how fast does beat cutoff decay?
 var framesSinceLastBeat = 0; // once this equals beatHoldFrames, beatCutoff starts to decay.
 
 p5.disableFriendlyErrors = true; // disables FES
@@ -64,12 +64,12 @@ p5.disableFriendlyErrors = true; // disables FES
 function preload(){
   font = loadFont("./fonts/Overpass-Regular.ttf");
   source = loadSound('TapSamples/MedCrawls.mp3');
-  source2 = loadSound('TapSamples/MedCrawls.mp3');
+  // source2 = loadSound('TapSamples/MedCrawls.mp3');
   // source = new p5.AudioIn();
 
-  source.disconnect();
-  filter = new p5.HighPass();
-  source.connect(filter);
+  // source.disconnect();
+  // filter = new p5.LowPass();
+  // source.connect(filter);
 }
 
 function setup() {
@@ -118,13 +118,13 @@ function setup() {
   // source.start();
   // create new Amplitude 
   level = new p5.Amplitude();
-  level.setInput(source2);
+  level.setInput(source);
   // level.setInput(song);
 
   // song.play();
 
   // create FFT
-  fft = new p5.FFT(0.2, 64);
+  fft = new p5.FFT(0, 64);
   fft.setInput(source);
 
   if(newDraw == 1){
@@ -166,9 +166,12 @@ function draw() {
 
 // https://therewasaguy.github.io/p5-music-viz/demos/01d_beat_detect_amplitude/
 function detectBeat(amp) {
+  // print(amp);
   if (amp  > beatCutoff && amp > beatThreshold){
-    analyzeNoise(); // onBeat(); this should be a the action for a new beat
-    print("BEAT");
+    if(data.length > 5){ //fixes issue with double outputs
+      analyzeNoise(); // onBeat(); this should be a the action for a new beat
+      print("BEAT");
+    }
     beatCutoff = amp *1.2;
     framesSinceLastBeat = 0;
   } else{
@@ -264,8 +267,10 @@ function toggleRecord(){
       listening = true;
       // source.start();
       source.play();
+      // source2.play();
       loop();
   }
+  data = [];
 }
 
 function toggleStop(){
@@ -273,7 +278,9 @@ function toggleStop(){
   if(listening){
     listening = false;
     source.stop();
+    // source2.stop();
     noLoop();
+    data = [];
   }
 }
 
@@ -409,8 +416,8 @@ function drawAmphistory(){
 }
 
 function recordData(){
-  let freq = 5000;
-  filter.freq(freq);
+  // let freq = 4500;
+  // filter.freq(freq);
   var spectrum = fft.analyze();
   data.push(spectrum);
   // print(spectrum);
@@ -439,15 +446,25 @@ function getText(){
 }
 
 function analyzeNoise(){
-  var sum = 0;
+  var sumlow = 0;
+  var sumhigh = 0;
   for(var i = 0; i < data.length; i++){
-    sum += data[i][5];
+    sumlow += data[i][5];
+    sumhigh+= data[i][20];
+    // print(data[i][5]);
     // print(sum);
   }
   // print("LENGTH" + data.length);
-  if(sum/data.length > 100){
-    print("out");
+  if(sumlow/data.length > 80 && sumhigh/data.length > 80){
+    binOut += 1;
   }
+  else if(sumlow/data.length > 80){
+    // print("AVG: " + sum/data.length);
+    binOut += 0;
+  }
+  print("HIGHAVG: " + sumhigh/data.length);
+  print("LOWHAVG: " + sumlow/data.length);
+  data = [];
   // if (listening){ // SHANNON why does this check for listening = true? 
   //   for (var i = 0; i < data.length; i=0) {
   //     total += data[i];
