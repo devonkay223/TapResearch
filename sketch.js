@@ -41,6 +41,10 @@ let bPad = 0; //padding between the buttons
 let lineY = 100;
 let lineQ = 500;
 let filter = null;
+let highEnergy = null;
+let lowEnergy = null;
+let z = null;
+let y = null;
 
 //Beat detection
 // :: Beat Detect Variables
@@ -162,6 +166,15 @@ function draw() {
   // textFont(font); NOTE font is not currently applied bc it only has english characters and were getting a lot of non english chars rn
   text(binOut,50,50); 
   text(sentence,50,90);
+
+  if(fft.getEnergy(7000) > 90){
+    highEnergy += fft.getEnergy(7000);
+    print(fft.getEnergy(7000));
+    y++;
+  }
+  lowEnergy += fft.getEnergy(2000);
+  // print(lowEnergy);
+  z++;
 }
 
 // https://therewasaguy.github.io/p5-music-viz/demos/01d_beat_detect_amplitude/
@@ -446,25 +459,57 @@ function getText(){
 }
 
 function analyzeNoise(){
-  var sumlow = 0;
-  var sumhigh = 0;
-  for(var i = 0; i < data.length; i++){
-    sumlow += data[i][5];
-    sumhigh+= data[i][20];
-    // print(data[i][5]);
-    // print(sum);
-  }
-  // print("LENGTH" + data.length);
-  if(sumlow/data.length > 80 && sumhigh/data.length > 80){
+  let hAvg = highEnergy/y;
+  let lAvg = lowEnergy/z;
+
+  if(hAvg > 100 && lAvg > 100){
     binOut += 1;
   }
-  else if(sumlow/data.length > 80){
-    // print("AVG: " + sum/data.length);
+  else if (lAvg > 100) {
     binOut += 0;
   }
-  print("HIGHAVG: " + sumhigh/data.length);
-  print("LOWHAVG: " + sumlow/data.length);
-  data = [];
+  
+  print("HAVG: " + hAvg);
+  print("LAVG: " + lAvg);
+
+  highEnergy = 0;
+  lowEnergy = 0; 
+  z =0;
+  y=0;
+
+  // var sumlow = 0;
+  // var sumhigh = 0;
+  // var z =0;
+  // for(var i = 0; i < data.length; i++){
+  //   sumlow += data[i][5];
+  //   sumlow += data[i][6];
+  //   sumlow += data[i][7];
+  //   sumlow += data[i][8];
+  //   sumlow += data[i][9];
+  //   if(data[i][57] > 40){
+  //     sumhigh+= data[i][57];
+  //     print(sumhigh);
+  //     z++;
+  //   }
+  // }
+  //   // print(data[i][5]);
+  //   // print(sum);
+  
+
+  // var SHavg = sumhigh/z;
+  // var SLavg = sumlow/(5 * data.length);
+
+  // // print("LENGTH" + data.length);
+  // if(SLavg > 80 && SHavg > 80){
+  //   binOut += 1;
+  // }
+  // else if(SLavg > 80){
+  //   // print("AVG: " + sum/data.length);
+  //   binOut += 0;
+  // }
+  // print("HIGHAVG: " + SHavg);
+  // print("LOWHAVG: " + SLavg);
+  // data = [];
   // if (listening){ // SHANNON why does this check for listening = true? 
   //   for (var i = 0; i < data.length; i=0) {
   //     total += data[i];
