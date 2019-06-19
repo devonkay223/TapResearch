@@ -167,11 +167,11 @@ function draw() {
   text(binOut,50,50); 
   text(sentence,50,90);
 
-  if(fft.getEnergy(7000) > 90){
-    highEnergy += fft.getEnergy(7000);
-    print(fft.getEnergy(7000));
+  //if(fft.getEnergy(8000) > 90){
+    highEnergy += fft.getEnergy(8500);
+    print(fft.getEnergy(8000));
     y++;
-  }
+  //}
   lowEnergy += fft.getEnergy(2000);
   // print(lowEnergy);
   z++;
