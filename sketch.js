@@ -17,7 +17,7 @@ let binOut = "";
 let transbin = "";
 //Audio Vars
 let silence = 0.02; // prev 0.07
-let threshold = 1.3; // sets midway threshold between 'loud' and 'quiet' noise
+let threshold = 1.8; // sets midway threshold between 'loud' and 'quiet' noise
 let quiet = 0.18;
 let rate = 60;
 //Styling
@@ -42,6 +42,7 @@ let lineQ = 500;
 let w = window.innerWidth / 64
 let lock = true;
 let quietlock = false;
+let x = 0;
 
 
 //Beat detection
@@ -122,8 +123,8 @@ function setup() {
   // song.play();
 
   // create FFT
-  fft = new p5.FFT(0.9, 1024);
-  fft.setInput(source);
+  // fft = new p5.FFT(0.9, 1024);
+  // fft.setInput(source);
 
   if(newDraw == 0){
     source.start();
@@ -138,18 +139,21 @@ function draw() {
   // Beat Detection
   var amp = level.getLevel();
   detectBeat(amp);
+  if (amp > .07){
+    data.push(amp);
+    print(amp);
+  }
 
   // FFT
-  var spectrum = fft.analyze();
-  var scaledSpectrum = splitOctaves(spectrum, 3);
-  var len = scaledSpectrum.length;
+  // var spectrum = fft.analyze();
+  // var scaledSpectrum = splitOctaves(spectrum, 3);
+  // var len = scaledSpectrum.length;
 
-  recordData();
-  drawWaveForm();
-  drawCircAmp();
-  drawFFTLive();
+  // drawWaveForm();
+  // drawCircAmp();
+  // drawFFTLive();
   // if(listening){
-  drawAmphistory();
+  // drawAmphistory();
   // }
   setThreshold();
   setQuiet();
@@ -165,10 +169,14 @@ function draw() {
 // https://therewasaguy.github.io/p5-music-viz/demos/01d_beat_detect_amplitude/
 function detectBeat(amp) {
   if (amp  > beatCutoff && amp > beatThreshold){
-    analyzeNoise(); // onBeat(); this should be a the action for a new beat
     beatCutoff = amp *1.2;
     framesSinceLastBeat = 0;
+    x=0;
   } else{
+    x++;
+    if(x == 15){
+      analyzeNoise();
+    }
     if (framesSinceLastBeat <= beatHoldFrames){
       framesSinceLastBeat ++;
     }
@@ -179,69 +187,6 @@ function detectBeat(amp) {
   }
 }
 
-
-/**
- *  Source: https://therewasaguy.github.io/p5-music-viz/demos/05_fft_scaleOneThirdOctave_UnknownPleasures/
- *  Divides an fft array into octaves with each
- *  divided by three, or by a specified "slicesPerOctave".
- *
- *  There are 10 octaves in the range 20 - 20,000 Hz,
- *  so this will result in 10 * slicesPerOctave + 1
- *
- *  @method splitOctaves
- *  @param {Array} spectrum Array of fft.analyze() values
- *  @param {Number} [slicesPerOctave] defaults to thirds
- *  @return {Array} scaledSpectrum array of the spectrum reorganized by division
- *                                 of octaves
- */
-function splitOctaves(spectrum, slicesPerOctave) {
-  var scaledSpectrum = [];
-  var len = spectrum.length; //1024 ~ defined as the upper input for fft above
-
-  // default to thirds
-  var n = slicesPerOctave|| 3;
-  var nthRootOfTwo = Math.pow(2, 1/n);
-  // print(nthRootOfTwo);
-
-  // the last N bins get their own
-  var lowestBin = slicesPerOctave;
-
-  var binIndex = len - 1;
-  var i = binIndex; //1023
-  // print(binIndex);
-
-  while (i > lowestBin) {
-    var nextBinIndex = round( binIndex/nthRootOfTwo ); //whats happening here?
-    // print(nextBinIndex);
-
-    if (nextBinIndex === 1) return;
-
-    var total = 0;
-    var numBins = 0;
-
-    // add up all of the values for the frequencies
-    for (i = binIndex; i > nextBinIndex; i--) {
-      total += spectrum[i];
-      numBins++;
-    }
-
-    // divide total sum by number of bins
-    var energy = total/numBins;
-    scaledSpectrum.push(energy);
-
-    // keep the loop going
-    binIndex = nextBinIndex;
-  }
-
-  // add the lowest bins at the end
-  for (var j = i; j > 0; j--) {
-    scaledSpectrum.push(spectrum[j]);
-  }
-
-  // reverse so that array has same order as original array (low to high frequencies)
-  scaledSpectrum.reverse();
-  return scaledSpectrum;
-}
 
 function toggleRecord(){
   getAudioContext().resume();
@@ -412,18 +357,6 @@ function drawFFTLive(){
   }
 }
 
-function recordData(){
-  noise = level.getLevel();
-  if (noise > silence) {
-    data.push(noise);
-    console.log(noise);
-    analyzed = false;
-  }
-  // else if (analyzed === false) {
-  //   // analyzeNoise();
-  //   analyzed = true;
-  // }
-}
 
 function getText(){
   let addedlet = "";
@@ -437,28 +370,22 @@ function getText(){
 }
 
 function analyzeNoise(){
-  if (listening){ // SHANNON why does this check for listening = true?
-    for (var i = 0; i < data.length; i=0) {
-      total += data[i];
-      console.log(total);
-      data.shift(i);
-    }
-    print("total:" + total);
+  let total = 0;
+  for(var i =0; i < data.length; i++){
+    total += data[i];
+    data.pop(i);
   }
-  if (total > quiet && total < threshold){
-    binOut+= "0";
-    transbin+= "0";
-    print(0);
-    circleFill = 'black';
+  print("TOTAL: " + total);
+  if(total > threshold){
+    print("1");
+    binOut += 1;
+    transbin += 1;
   }
-
-  if (total > threshold){
-    binOut+= "1";
-    transbin+= "1";
-    print(1);
-    circleFill = 'white';
+  else if (total > quiet){
+    print("0");
+    binOut += 0;
+    transbin += 0;
   }
-  total = 0
   if (transbin.length == 8){
     getText();
   }
@@ -472,15 +399,3 @@ function windowResized() {
   resetButton.remove();
   setup();
 }
-
-// function keyPressed(e) {
-//   // spacebar pauses
-//   if (e.keyCode == 32) {
-//     //var context = new AudioContext();
-//     if (song.isPlaying()) {
-//       song.pause();
-//     } else {
-//       song.play();
-//     }
-//   }
-// }
