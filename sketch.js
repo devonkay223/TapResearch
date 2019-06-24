@@ -67,9 +67,9 @@ p5.disableFriendlyErrors = true; // disables FES
 
 function preload(){
   font = loadFont("./fonts/Overpass-Regular.ttf");
-  // source = loadSound('TapSamples/StandingToes.mp3');
+  source = loadSound('TapSamples/MedCrawls.mp3');
   // source2 = loadSound('TapSamples/MedCrawls.mp3');
-  source = new p5.AudioIn();
+  // source = new p5.AudioIn();
 
   // source.disconnect();
   // filter = new p5.LowPass();
@@ -119,11 +119,11 @@ function setup() {
 
   // Create an Audio input
   
-  source.start();
+  // source.start();
   // create new Amplitude 
   level = new p5.Amplitude();
-  level.setInput(source);
-  // level.setInput(song);
+  // level.setInput(source);
+  level.setInput(song);
 
   // song.play();
 
@@ -167,12 +167,12 @@ function draw() {
   text(binOut,50,50); 
   text(sentence,50,90);
 
-  if(fft.getEnergy(8000) > 90){
+  // if(fft.getEnergy(8000) > 90){
     highEnergy += fft.getEnergy(8500);
     print(fft.getEnergy(8000));
     y++;
-  }
-  lowEnergy += fft.getEnergy(2000);
+  // }
+  lowEnergy += fft.getEnergy(1000);
   // print(lowEnergy);
   z++;
 }
@@ -181,7 +181,7 @@ function draw() {
 function detectBeat(amp) {
   // print(amp);
   if (amp  > beatCutoff && amp > beatThreshold){
-    if(data.length > 5){ //fixes issue with double outputs
+    if(z > 10){ //fixes issue with double outputs
       analyzeNoise(); // onBeat(); this should be a the action for a new beat
       print("BEAT");
     }
@@ -278,8 +278,8 @@ function toggleRecord(){
   getAudioContext().resume();
   if (!listening) {
       listening = true;
-      source.start();
-      // source.play();
+      // source.start();
+      source.play();
       // source2.play();
       loop();
   }
