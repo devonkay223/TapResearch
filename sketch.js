@@ -84,7 +84,7 @@ function setup() {
   cnv.style('vertical-align', 'top'); // removes scroll bars
 
   //Style Canvas
-  buttonTextHeight = 28; 
+  buttonTextHeight = 28;
   bRight = width - (width/50);
   btop = 26;
   //Scaling that occurs for buttons may be slowing things down?
@@ -115,12 +115,12 @@ function setup() {
   resetButton.style('color', '#ffffff');
   resetButton.style('border-color', '#ffffff');
   bRight3 = bRight - resetButton.size().width;
-  resetButton.position(bRight3, btop + 2*(bHeight + bPad)); 
+  resetButton.position(bRight3, btop + 2*(bHeight + bPad));
 
   // Create an Audio input
-  
+
   // source.start();
-  // create new Amplitude 
+  // create new Amplitude
   level = new p5.Amplitude();
   // level.setInput(source);
   level.setInput(song);
@@ -150,7 +150,7 @@ function draw() {
   spectrum = fft.analyze();
   // var scaledSpectrum = splitOctaves(spectrum, 3);
   // var len = scaledSpectrum.length;
-  
+
   recordData();
   // drawWaveForm();
   // drawCircAmp();
@@ -162,16 +162,16 @@ function draw() {
   checkOutputLengthBinOut();
   checkOutputLengthSentence();
   fill('#FFFFFF');
-  textSize(fontSize); 
+  textSize(fontSize);
   // textFont(font); NOTE font is not currently applied bc it only has english characters and were getting a lot of non english chars rn
-  text(binOut,50,50); 
+  text(binOut,50,50);
   text(sentence,50,90);
 
-  // if(fft.getEnergy(8000) > 90){
-    highEnergy += fft.getEnergy(8500);
-    print(fft.getEnergy(8000));
+  if(fft.getEnergy(8000) > 70){
+    highEnergy += fft.getEnergy(6500);
+    print(fft.getEnergy(6500));
     y++;
-  // }
+  }
   lowEnergy += fft.getEnergy(1000);
   // print(lowEnergy);
   z++;
@@ -203,7 +203,7 @@ function detectBeat(amp) {
  *  Source: https://therewasaguy.github.io/p5-music-viz/demos/05_fft_scaleOneThirdOctave_UnknownPleasures/
  *  Divides an fft array into octaves with each
  *  divided by three, or by a specified "slicesPerOctave".
- *  
+ *
  *  There are 10 octaves in the range 20 - 20,000 Hz,
  *  so this will result in 10 * slicesPerOctave + 1
  *
@@ -222,7 +222,7 @@ function splitOctaves(spectrum, slicesPerOctave) {
   var nthRootOfTwo = Math.pow(2, 1/n);
   // print(nthRootOfTwo);
 
-  // the last N bins get their own 
+  // the last N bins get their own
   var lowestBin = slicesPerOctave;
 
   var binIndex = len - 1;
@@ -413,7 +413,7 @@ function drawAmphistory(){
   }
 
   stroke(255);
-  beginShape(); 
+  beginShape();
   noFill();
   push();
   var y = map(vol,0,1,height,0);
@@ -462,18 +462,18 @@ function analyzeNoise(){
   let hAvg = highEnergy/y;
   let lAvg = lowEnergy/z;
 
-  if(hAvg > 100 && lAvg > 100){
+  if(hAvg > 112){
     binOut += 1;
   }
   else if (lAvg > 100) {
     binOut += 0;
   }
-  
+
   print("HAVG: " + hAvg);
   print("LAVG: " + lAvg);
 
   highEnergy = 0;
-  lowEnergy = 0; 
+  lowEnergy = 0;
   z =0;
   y=0;
 
@@ -494,7 +494,7 @@ function analyzeNoise(){
   // }
   //   // print(data[i][5]);
   //   // print(sum);
-  
+
 
   // var SHavg = sumhigh/z;
   // var SLavg = sumlow/(5 * data.length);
@@ -510,7 +510,7 @@ function analyzeNoise(){
   // print("HIGHAVG: " + SHavg);
   // print("LOWHAVG: " + SLavg);
   // data = [];
-  // if (listening){ // SHANNON why does this check for listening = true? 
+  // if (listening){ // SHANNON why does this check for listening = true?
   //   for (var i = 0; i < data.length; i=0) {
   //     total += data[i];
   //     console.log(total);
@@ -545,4 +545,3 @@ function windowResized() {
   resetButton.remove();
   setup();
 }
-
