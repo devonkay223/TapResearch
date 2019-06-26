@@ -44,6 +44,8 @@ let lock = true;
 let quietlock = false;
 let x = 0;
 
+let ellipseWidth = 100;
+
 
 //Beat detection
 // :: Beat Detect Variables
@@ -53,10 +55,13 @@ let x = 0;
 // so 20 fps = 3 beats per second, meaning if the song is over 180 BPM,
 // we wont respond to every beat.
 var beatHoldFrames = 30;
+var peakHoldFrames = 10;
 // what amplitude level can trigger a beat?
 var beatThreshold = 0.11;
 var newbeat = 0;
+var newpeak = 0;
 var wasbeat = false;
+var waspeak = false;
 
 // When we have a beat, beatCutoff will be reset to 1.1*beatThreshold, and then decay
 // Level must be greater than beatThreshold and beatCutoff before the next beat can trigger.
@@ -164,8 +169,10 @@ function setup() {
   // song.play();
 
   // create FFT
-  // fft = new p5.FFT(0.9, 1024);
-  // fft.setInput(source);
+  fft = new p5.FFT(0.9, 1024);
+  fft.setInput(source);
+
+  peakDetect = new p5.PeakDetect(20,20000,.20,15);
 
   
   if(newDraw == 0){
@@ -180,7 +187,7 @@ function draw() {
 
   // Beat Detection
   var amp = level.getLevel();
-  detectBeat(amp);
+  // detectBeat(amp);
   if (amp > .03){ // filter beat data removing background noise
     data.push(amp);
     print(amp);
@@ -200,13 +207,42 @@ function draw() {
   // var scaledSpectrum = splitOctaves(spectrum, 3);
   // var len = scaledSpectrum.length;
 
-  // drawWaveForm();
+  //drawWaveForm();
   // drawCircAmp();
-  // drawFFTLive();
+  //drawFFTLive();
   // if(listening){
-  // drawAmphistory();
+   drawAmphistory();
   // }
   // setThreshold();
+
+  fft.analyze();
+  peakDetect.update(fft);
+
+  if ( peakDetect.isDetected && newpeak == true) {
+    ellipseWidth = 100;
+    fill('white');
+    print('PEAK')
+    //framesSinceLastPeak = 0;
+    newpeak = false;
+    waspeak = true;
+  } else {
+    ellipseWidth = 0.50;
+    fill('black');
+    //if (framesSinceLastPeak <= peakHoldFrames){
+    //  framesSinceLastPeak ++;
+    //}
+    if (amp < .009 && waspeak == true){ //
+      analyzeNoise();
+      waspeak = false;
+    }
+    if (amp < .002){ //
+      newpeak = true;
+    }
+  }
+
+  ellipse(width/2, height/2, ellipseWidth, ellipseWidth);
+
+
   setQuiet();
   checkOutputLengthBinOut();
   checkOutputLengthSentence();
@@ -419,10 +455,10 @@ function drawFFTLive(){
 
 function getText(){
   let addedlet = "";
-  print(transbin);
+  // print(transbin);
   addedlet = charCodes[transbin];
   if (addedlet != undefined){
-    print(addedlet);
+    // print(addedlet);
     sentence += addedlet;
     transbin = "";
     trans = false;
@@ -440,13 +476,13 @@ function analyzeNoise(){
   print("TOTAL: " + total);
 
   if(total > threshold){
-    print("-");
+    // print("-");
     binOut += "-";
     transbin += "-";
     trans = true;
   }
   else if (total > quiet){
-    print(".");
+    // print(".");
     binOut += ".";
     transbin += ".";
     trans = true;
