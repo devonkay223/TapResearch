@@ -56,6 +56,7 @@ var beatHoldFrames = 30;
 // what amplitude level can trigger a beat?
 var beatThreshold = 0.11;
 var newbeat = 0;
+var wasbeat = false;
 
 // When we have a beat, beatCutoff will be reset to 1.1*beatThreshold, and then decay
 // Level must be greater than beatThreshold and beatCutoff before the next beat can trigger.
@@ -180,7 +181,7 @@ function draw() {
   // Beat Detection
   var amp = level.getLevel();
   detectBeat(amp);
-  if (amp > .002){ // filter beat data removing background noise
+  if (amp > .03){ // filter beat data removing background noise
     data.push(amp);
     print(amp);
   }
@@ -223,10 +224,17 @@ function detectBeat(amp) {
     framesSinceLastBeat = 0;
     x=0;
     newbeat = false;
+    wasbeat = true;
+    print("BEAT")
+    // analyzeNoise();
   } else{
     x++;
-    if(x == 10){ //handle double beats 
+    // if(x == 10){ //handle double beats 
+    //   analyzeNoise();
+    // }
+    if (amp < .03 && wasbeat == true){ //
       analyzeNoise();
+      wasbeat = false;
     }
     if (amp < .002){ //
       newbeat = true;
