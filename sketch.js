@@ -184,7 +184,7 @@ function draw() {
     data.push(amp);
     print(amp);
   }
-  else {print("SILENCE");}
+  // else {print("SILENCE");}
 
   if (amp < silence && x > 120 && trans == true){
     analyzeNoise();
@@ -228,7 +228,7 @@ function detectBeat(amp) {
     if(x == 10){ //handle double beats 
       analyzeNoise();
     }
-    if (amp < .002){
+    if (amp < .002){ //
       newbeat = true;
     }
     if (framesSinceLastBeat <= beatHoldFrames){
