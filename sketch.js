@@ -17,8 +17,8 @@ let binOut = "";
 let transbin = "";
 //Audio Vars
 let silence = 0.02; // prev 0.07
-let threshold = 1.8; // sets midway threshold between 'loud' and 'quiet' noise
-let quiet = 0.18;
+let threshold = 2.5; // sets midway threshold between 'loud' and 'quiet' noise
+let quiet = .6;
 let rate = 60;
 //Styling
 var font;
@@ -52,9 +52,10 @@ let x = 0;
 // frameRate() is usually around 60 frames per second,
 // so 20 fps = 3 beats per second, meaning if the song is over 180 BPM,
 // we wont respond to every beat.
-var beatHoldFrames = 20;
+var beatHoldFrames = 30;
 // what amplitude level can trigger a beat?
 var beatThreshold = 0.11;
+var newbeat = 0;
 
 // When we have a beat, beatCutoff will be reset to 1.1*beatThreshold, and then decay
 // Level must be greater than beatThreshold and beatCutoff before the next beat can trigger.
@@ -64,9 +65,47 @@ var framesSinceLastBeat = 0; // once this equals beatHoldFrames, beatCutoff star
 
 p5.disableFriendlyErrors = true; // disables FES
 
+// Morse Code Library:
+var charCodes = new Array(36); 
+charCodes[".-"]="a";
+charCodes["-..."]="b";
+charCodes["-.-."]="c";
+charCodes["-.."]="d";
+charCodes["."]="e";
+charCodes["..-."]="f";
+charCodes["--."]="g";
+charCodes["...."]="h";
+charCodes[".."]="i";
+charCodes[".---"]="j";
+charCodes["-.-"]="k";
+charCodes[".-.."]="l";
+charCodes["--"]="m";
+charCodes["-."]="n";
+charCodes["---"]="o";
+charCodes[".--."]="p";
+charCodes["--.-"]="q";
+charCodes[".-."]="r";
+charCodes["..."]="s";
+charCodes["-"]="t";
+charCodes["..-"]="u";
+charCodes["...-"]="v";
+charCodes[".--"]="w";
+charCodes["-..-"]="x";
+charCodes["-.--"]="y";
+charCodes["--.."]="z";
+charCodes[".----"]="1";
+charCodes["..---"]="2";
+charCodes["...--"]="3";
+charCodes["....-"]="4";
+charCodes["....."]="5";
+charCodes["-...."]="6";
+charCodes["--..."]="7";
+charCodes["---.."]="8";
+charCodes["----."]="9";
+charCodes["-----"]="0";
+
 function preload(){
   font = loadFont("./fonts/Overpass-Regular.ttf");
-  // song = loadSound('underwater.mp3');
 }
 
 function setup() {
@@ -80,7 +119,7 @@ function setup() {
   buttonTextHeight = 28;
   bRight = width - (width/50);
   btop = 26;
-  //Scaling that occurs for buttons may be slowing things down?
+  // Create Buttons
   recordButton = createButton('Record');
   recordButton.style('background-color', '#000000');
   recordButton.style('font-size', buttonTextHeight);
@@ -110,11 +149,12 @@ function setup() {
   bRight3 = bRight - resetButton.size().width;
   resetButton.position(bRight3, btop + 2*(bHeight + bPad));
 
-  colorMode(HSB);
+  // colorMode(HSB);
 
-  // Create an Audio input
+  // Create an AudioIn
   source = new p5.AudioIn();
   // source.start();
+
   // create new Amplitude
   level = new p5.Amplitude();
   level.setInput(source);
@@ -126,6 +166,7 @@ function setup() {
   // fft = new p5.FFT(0.9, 1024);
   // fft.setInput(source);
 
+  
   if(newDraw == 0){
     source.start();
     listening = true;
@@ -139,10 +180,19 @@ function draw() {
   // Beat Detection
   var amp = level.getLevel();
   detectBeat(amp);
-  if (amp > .07){
+  if (amp > .002){ // filter beat data removing background noise
     data.push(amp);
     print(amp);
   }
+  else {print("SILENCE");}
+
+  if (amp < silence && x > 120 && trans == true){
+    analyzeNoise();
+    getText();
+  }
+  // if (amp <.07 && x > 120 && trans == true){
+  //   sentence += " ";
+  // }
 
   // FFT
   // var spectrum = fft.analyze();
@@ -155,27 +205,31 @@ function draw() {
   // if(listening){
   // drawAmphistory();
   // }
-  setThreshold();
+  // setThreshold();
   setQuiet();
   checkOutputLengthBinOut();
   checkOutputLengthSentence();
   fill('#FFFFFF');
   textSize(fontSize);
-  // textFont(font); NOTE font is not currently applied bc it only has english characters and were getting a lot of non english chars rn
+  textFont(font); //NOTE font is not currently applied bc it only has english characters and were getting a lot of non english chars rn
   text(binOut,50,50);
   text(sentence,50,90);
 }
 
 // https://therewasaguy.github.io/p5-music-viz/demos/01d_beat_detect_amplitude/
 function detectBeat(amp) {
-  if (amp  > beatCutoff && amp > beatThreshold){
+  if (amp  > beatCutoff && amp > beatThreshold && newbeat == true){
     beatCutoff = amp *1.2;
     framesSinceLastBeat = 0;
     x=0;
+    newbeat = false;
   } else{
     x++;
-    if(x == 15){
+    if(x == 10){ //handle double beats 
       analyzeNoise();
+    }
+    if (amp < .002){
+      newbeat = true;
     }
     if (framesSinceLastBeat <= beatHoldFrames){
       framesSinceLastBeat ++;
@@ -231,7 +285,6 @@ function setQuiet(){
   line(0, lineQ, width, lineQ);
 }
 
-
 function mouseDragged() {
   if(lock === true){
     if ((mouseY < lineY + 30) && (mouseY > lineY - 30)){
@@ -248,7 +301,6 @@ function mouseDragged() {
     }
   }
 }
-
 
 function keyPressed() {
   if (keyCode === 81){
@@ -357,16 +409,18 @@ function drawFFTLive(){
   }
 }
 
-
 function getText(){
   let addedlet = "";
-  let num = parseInt(transbin,10)
-  addedlet += char(num);
-  print(addedlet);
-  sentence += addedlet;
-  transbin = "";
+  print(transbin);
+  addedlet = charCodes[transbin];
+  if (addedlet != undefined){
+    print(addedlet);
+    sentence += addedlet;
+    transbin = "";
+    trans = false;
+    return addedlet;
+  }
   trans = false;
-  return addedlet;
 }
 
 function analyzeNoise(){
@@ -376,19 +430,22 @@ function analyzeNoise(){
     data.pop(i);
   }
   print("TOTAL: " + total);
+
   if(total > threshold){
-    print("1");
-    binOut += 1;
-    transbin += 1;
+    print("-");
+    binOut += "-";
+    transbin += "-";
+    trans = true;
   }
   else if (total > quiet){
-    print("0");
-    binOut += 0;
-    transbin += 0;
+    print(".");
+    binOut += ".";
+    transbin += ".";
+    trans = true;
   }
-  if (transbin.length == 8){
-    getText();
-  }
+  // else if (total < quiet){
+  //     getText();
+  // }
 }
 
 function windowResized() {
