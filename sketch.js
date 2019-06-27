@@ -147,9 +147,9 @@ function draw() {
   recordData();
   drawWaveForm();
   drawCircAmp();
-  //drawFFTLive();
+  drawFFTLive();
   // if(listening){
-  drawAmphistory();
+  //drawAmphistory();
   // }
   //setThreshold();
   //setQuiet();
@@ -407,7 +407,7 @@ function drawFFTLive(){
     var y = map(amp, 0, 256, height, 0);
     //fill(i, 255, 255);
     //fill(27,87,66);
-    fill(color(27,87,66));
+    fill(color(159,68,66));
     rect(i * w, y, w-10, height - y);
   }
 }
