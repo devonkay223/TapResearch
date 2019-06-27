@@ -24,13 +24,13 @@ let threshold = 5; // sets midway threshold between 'loud' and 'quiet' noise
 let quiet = 2.5;
 let rate = 60;
 //Styling
-var font;
+let font;
 let fontSize = 32;
 //Buttons
-var recordButton;
-var stopButton;
-var resetButton;
-var thersholdSlider;
+let recordButton;
+let stopButton;
+let resetButton;
+let thersholdSlider;
 //Button Constraints
 let bRight = 0; // right padding for buttons
 let bRight1 = 0; // x location of button 1
@@ -43,11 +43,14 @@ let lineY = window.innerHeight/2; // threshold 5/10
 let lineQ = window.innerHeight - (window.innerHeight/4); // quiet 2/10
 
 let w = window.innerWidth / 64
+
+//Locks
 let lock = true;
 let quietlock = false;
+let performanceMode = false;
 
-var wasbeat = false;
-var newbeat = false;
+let wasbeat = false;
+let newbeat = false;
 
 
 //Beat detection
@@ -57,15 +60,15 @@ var newbeat = false;
 // frameRate() is usually around 60 frames per second,
 // so 20 fps = 3 beats per second, meaning if the song is over 180 BPM,
 // we wont respond to every beat.
-var beatHoldFrames = 20;
+let beatHoldFrames = 20;
 // what amplitude level can trigger a beat?
-var beatThreshold = 0.11;
+let beatThreshold = 0.11;
 
 // When we have a beat, beatCutoff will be reset to 1.1*beatThreshold, and then decay
 // Level must be greater than beatThreshold and beatCutoff before the next beat can trigger.
-var beatCutoff = 0;
-var beatDecayRate = 0.98; // how fast does beat cutoff decay?
-var framesSinceLastBeat = 0; // once this equals beatHoldFrames, beatCutoff starts to decay.
+let beatCutoff = 0;
+let beatDecayRate = 0.98; // how fast does beat cutoff decay?
+let framesSinceLastBeat = 0; // once this equals beatHoldFrames, beatCutoff starts to decay.
 
 
 
@@ -108,13 +111,26 @@ function toggleReset(){
 
 //Interactivity & Thresholds
 function setThreshold(){
-  stroke('white');
-  line(0, lineY, width, lineY);
+  if (performanceMode === false) {
+    strokeWeight(2);
+    stroke('white');
+    line(0, lineY, width, lineY);
+  }
+  else{
+    stroke('black')
+    line(0, lineY, width, lineY);
+  }
 }
 
 function setQuiet(){
-  stroke('gray');
-  line(0, lineQ, width, lineQ);
+  if (performanceMode === false) {
+    strokeWeight(2);
+    stroke('gray');
+    line(0, lineQ, width, lineQ);
+  }
+  else{
+    stroke('black')
+  }
 }
 
 
@@ -149,6 +165,19 @@ function keyPressed() {
     quietlock = !quietlock
     print("quietlock" + quietlock)
   }
+  if (keyCode === 80)
+    performanceMode = !performanceMode
+    print("Performance mode!")
+    if (performanceMode === true) {
+      recordButton = recordButton.hide();
+      stopButton = stopButton.hide();
+      resetButton = resetButton.hide();
+    }
+    if (performanceMode === false) {
+      recordButton = recordButton.show();
+      stopButton = stopButton.show();
+      resetButton = resetButton.show();
+    }
 }
 
 function mousePressed(){
@@ -172,7 +201,7 @@ function drawWaveForm() {
   // Extract the spectrum from the time domain
   const wave = fft.waveform(source);
   // Set the stroke color to white
-  stroke(255);
+  stroke('White');
   // Turn off fill
   noFill();
   // Start drawing a shape
@@ -192,13 +221,13 @@ function drawCircAmp(){
     let vol = level.getLevel();
     fill(circleFill);
     //beginShape()
-    var y = map(vol,0,1,(height/2)-50,0);
+    let y = map(vol,0,1,(height/2)-50,0);
     ellipse(width/2,height/2,y, y);
     //endShape()
 }
 
 function drawAmphistory(){
-  var vol = source.getLevel();
+  let vol = source.getLevel();
   if(listening){
     volhistory.push(vol);
   }
@@ -209,7 +238,7 @@ function drawAmphistory(){
   push();
   //var y = map(vol,0,2,height,0);
   volhistory.forEach(function (amp, i) {
-    var y = map(volhistory[i],0,1,height,0);
+    let y = map(volhistory[i],0,1,height,0);
     vertex(i,y-20);
 
   if(volhistory.length > (innerWidth-50)){
@@ -220,14 +249,14 @@ function drawAmphistory(){
 }
 
 function drawFFTLive(){
-  var spectrum = fft.analyze();
+  let spectrum = fft.analyze();
   //console.log(spectrum);
   //stroke(255);
   noStroke();
   //beginShape();
-  for (var i = 0; i < spectrum.length; i++) {
-    var amp = spectrum[i];
-    var y = map(amp, 0, 256, height, 0);
+  for (let i = 0; i < spectrum.length; i++) {
+    let amp = spectrum[i];
+    let y = map(amp, 0, 256, height, 0);
     //fill(i, 255, 255);
     //fill(27,87,66);
     fill(color(159,68,66));
