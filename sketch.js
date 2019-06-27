@@ -17,8 +17,8 @@ let binOut = "";
 let transbin = "";
 //Audio Vars
 let silence = 0.02; // prev 0.07
-let threshold = 2.5; // sets midway threshold between 'loud' and 'quiet' noise
-let quiet = .6;
+let threshold = 1.3; // sets midway threshold between 'loud' and 'quiet' noise
+let quiet = .18;
 let rate = 60;
 //Styling
 var font;
@@ -207,11 +207,11 @@ function draw() {
   // var scaledSpectrum = splitOctaves(spectrum, 3);
   // var len = scaledSpectrum.length;
 
-  //drawWaveForm();
-  // drawCircAmp();
+  drawWaveForm();
+  drawCircAmp();
   //drawFFTLive();
   // if(listening){
-   drawAmphistory();
+  drawAmphistory();
   // }
   // setThreshold();
 
@@ -243,7 +243,7 @@ function draw() {
   ellipse(width/2, height/2, ellipseWidth, ellipseWidth);
 
 
-  setQuiet();
+  // setQuiet();
   checkOutputLengthBinOut();
   checkOutputLengthSentence();
   fill('#FFFFFF');
@@ -329,22 +329,22 @@ function setQuiet(){
   line(0, lineQ, width, lineQ);
 }
 
-function mouseDragged() {
-  if(lock === true){
-    if ((mouseY < lineY + 30) && (mouseY > lineY - 30)){
-      lineY = mouseY;
-      threshold = map(lineY, 0, height, 5, 0);
-      print("threshold :" + threshold);
-      }
-    }
-  if(quietlock === true){
-    if ((mouseY < lineQ + 30) && (mouseY > lineQ - 30)){
-      lineQ = mouseY
-      quiet = map(lineQ, 0, height, 5, 0);
-      print("quiet :" + quiet);
-    }
-  }
-}
+// function mouseDragged() {
+//   if(lock === true){
+//     if ((mouseY < lineY + 30) && (mouseY > lineY - 30)){
+//       lineY = mouseY;
+//       threshold = map(lineY, 0, height, 5, 0);
+//       print("threshold :" + threshold);
+//       }
+//     }
+//   if(quietlock === true){
+//     if ((mouseY < lineQ + 30) && (mouseY > lineQ - 30)){
+//       lineQ = mouseY
+//       quiet = map(lineQ, 0, height, 5, 0);
+//       print("quiet :" + quiet);
+//     }
+//   }
+// }
 
 function keyPressed() {
   if (keyCode === 81){
