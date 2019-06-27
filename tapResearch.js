@@ -1,3 +1,5 @@
+p5.disableFriendlyErrors = true; // disables FES
+
 //Global Variables
 let song; //imported song
 let data =[];

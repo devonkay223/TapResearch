@@ -1,6 +1,3 @@
-
-p5.disableFriendlyErrors = true; // disables FES
-
 function preload(){
   font = loadFont("./fonts/Overpass-Regular.ttf");
   // song = loadSound('underwater.mp3');
