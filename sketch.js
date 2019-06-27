@@ -43,6 +43,9 @@ let w = window.innerWidth / 64
 let lock = true;
 let quietlock = false;
 
+var wasbeat = false;
+var newbeat = false;
+
 
 //Beat detection
 // :: Beat Detect Variables
@@ -147,9 +150,9 @@ function draw() {
   recordData();
   drawWaveForm();
   drawCircAmp();
-  drawFFTLive();
+  // drawFFTLive();
   // if(listening){
-  //drawAmphistory();
+  drawAmphistory();
   // }
   //setThreshold();
   //setQuiet();
@@ -165,10 +168,20 @@ function draw() {
 // https://therewasaguy.github.io/p5-music-viz/demos/01d_beat_detect_amplitude/
 function detectBeat(amp) {
   if (amp  > beatCutoff && amp > beatThreshold){
-    analyzeNoise(); // onBeat(); this should be a the action for a new beat
     beatCutoff = amp *1.2;
     framesSinceLastBeat = 0;
+    x=0;
+    newbeat = false;
+    wasbeat = true;
+    print("BEAT")
   } else{
+    if (amp < .06 && wasbeat == true){ //
+      analyzeNoise();
+      wasbeat = false;
+    }
+    if (amp < .002){ //
+      newbeat = true;
+    }
     if (framesSinceLastBeat <= beatHoldFrames){
       framesSinceLastBeat ++;
     }
