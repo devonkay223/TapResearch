@@ -151,8 +151,8 @@ function draw() {
   // if(listening){
   drawAmphistory();
   // }
-  setThreshold();
-  setQuiet();
+  //setThreshold();
+  //setQuiet();
   checkOutputLengthBinOut();
   checkOutputLengthSentence();
   fill('#FFFFFF');
