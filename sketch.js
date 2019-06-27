@@ -147,7 +147,7 @@ function draw() {
   recordData();
   drawWaveForm();
   drawCircAmp();
-  drawFFTLive();
+  //drawFFTLive();
   // if(listening){
   drawAmphistory();
   // }
