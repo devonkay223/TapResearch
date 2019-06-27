@@ -276,15 +276,15 @@ function toggleReset(){
   }
 }
 
-function setThreshold(){
-  stroke('white');
-  line(0, lineY, width, lineY);
-}
+// function setThreshold(){
+//   stroke('white');
+//   line(0, lineY, width, lineY);
+// }
 
-function setQuiet(){
-  stroke('gray');
-  line(0, lineQ, width, lineQ);
-}
+// function setQuiet(){
+//   stroke('gray');
+//   line(0, lineQ, width, lineQ);
+// }
 
 
 function mouseDragged() {
