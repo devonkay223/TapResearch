@@ -194,10 +194,11 @@ function draw() {
   }
   // else {print("SILENCE");}
 
-  if (amp < silence && x > 120 && trans == true){
-    analyzeNoise();
-    getText();
-  }
+  // if (amp < silence && x > 120 && trans == true){
+  //   analyzeNoise();
+  //   getText();
+  // }
+  
   // if (amp <.07 && x > 120 && trans == true){
   //   sentence += " ";
   // }
@@ -218,27 +219,8 @@ function draw() {
   fft.analyze();
   peakDetect.update(fft);
 
-  if ( peakDetect.isDetected && newpeak == true) {
-    ellipseWidth = 100;
-    fill('white');
-    print('PEAK')
-    //framesSinceLastPeak = 0;
-    newpeak = false;
-    waspeak = true;
-  } else {
-    ellipseWidth = 0.50;
-    fill('black');
-    //if (framesSinceLastPeak <= peakHoldFrames){
-    //  framesSinceLastPeak ++;
-    //}
-    if (amp < .009 && waspeak == true){ //
-      analyzeNoise();
-      waspeak = false;
-    }
-    if (amp < .002){ //
-      newpeak = true;
-    }
-  }
+  detectPeak(amp);
+  
 
   ellipse(width/2, height/2, ellipseWidth, ellipseWidth);
 
@@ -253,7 +235,32 @@ function draw() {
   text(sentence,50,90);
 }
 
+function detectPeak(amp) {
+  if ( peakDetect.isDetected && newpeak == true) {
+    ellipseWidth = 100;
+    fill('white');
+    print('PEAK')
+    //framesSinceLastPeak = 0;
+    newpeak = false;
+    waspeak = true;
+  } else {
+    ellipseWidth = 0.50;
+    fill('black');
+    //if (framesSinceLastPeak <= peakHoldFrames){
+    //  framesSinceLastPeak ++;
+    //}
+    if (amp < .009 && waspeak == true){ // analyze on the decaying end of a peak
+      analyzeNoise();
+      waspeak = false;
+    }
+    if (amp < .002){ //once 'silence' is heard a new peak can be detected
+      newpeak = true;
+    }
+  }
+}
+
 // https://therewasaguy.github.io/p5-music-viz/demos/01d_beat_detect_amplitude/
+// not in use
 function detectBeat(amp) {
   if (amp  > beatCutoff && amp > beatThreshold && newbeat == true){
     beatCutoff = amp *1.2;
@@ -265,17 +272,14 @@ function detectBeat(amp) {
     // analyzeNoise();
   } else{
     x++;
-    // if(x == 10){ //handle double beats 
-    //   analyzeNoise();
-    // }
-    if (amp < .03 && wasbeat == true){ //
+    if (amp < .03 && wasbeat == true){ //analyze on the decaying end of a beat
       analyzeNoise();
       wasbeat = false;
     }
     if (amp < .002){ //
       newbeat = true;
     }
-    if (framesSinceLastBeat <= beatHoldFrames){
+    if (framesSinceLastBeat <= beatHoldFrames){ //once 'silence' is heard a new peak can be detected
       framesSinceLastBeat ++;
     }
     else{
