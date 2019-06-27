@@ -36,8 +36,8 @@ let bRight3 = 0; // x location of button 3
 let btop = 0; // y location for the top of the first button
 let bHeight = 0; //height of the buttons
 let bPad = 0; //padding between the buttons
-let lineY = 100;
-let lineQ = 500;
+// let lineY = 100;
+// let lineQ = 500;
 
 let w = window.innerWidth / 64
 let lock = true;
@@ -287,22 +287,22 @@ function toggleReset(){
 // }
 
 
-function mouseDragged() {
-  if(lock === true){
-    if ((mouseY < lineY + 30) && (mouseY > lineY - 30)){
-      lineY = mouseY;
-      threshold = map(lineY, 0, height, 5, 0);
-      print("threshold :" + threshold);
-      }
-    }
-  if(quietlock === true){
-    if ((mouseY < lineQ + 30) && (mouseY > lineQ - 30)){
-      lineQ = mouseY
-      quiet = map(lineQ, 0, height, 5, 0);
-      print("quiet :" + quiet);
-    }
-  }
-}
+// function mouseDragged() {
+//   if(lock === true){
+//     if ((mouseY < lineY + 30) && (mouseY > lineY - 30)){
+//       lineY = mouseY;
+//       threshold = map(lineY, 0, height, 5, 0);
+//       print("threshold :" + threshold);
+//       }
+//     }
+//   if(quietlock === true){
+//     if ((mouseY < lineQ + 30) && (mouseY > lineQ - 30)){
+//       lineQ = mouseY
+//       quiet = map(lineQ, 0, height, 5, 0);
+//       print("quiet :" + quiet);
+//     }
+//   }
+// }
 
 
 function keyPressed() {
