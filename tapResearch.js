@@ -20,8 +20,8 @@ let binOut = "";
 let transbin = "";
 //Audio Vars
 let silence = 0.02; // prev 0.07
-let threshold = 5; // sets midway threshold between 'loud' and 'quiet' noise
-let quiet = 2.5;
+let threshold = 2.5; // sets midway threshold between 'loud' and 'quiet' noise
+let quiet = 0.8;
 let rate = 60;
 //Styling
 let font;
