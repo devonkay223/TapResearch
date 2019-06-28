@@ -17,8 +17,8 @@ let binOut = "";
 let transbin = "";
 //Audio Vars
 let silence = 0.02; // prev 0.07
-let threshold = 1.3; // sets midway threshold between 'loud' and 'quiet' noise
-let quiet = .18;
+let threshold = 3.4; // sets midway threshold between 'loud' and 'quiet' noise
+let quiet = .5;
 let rate = 60;
 //Styling
 var font;
@@ -172,7 +172,7 @@ function setup() {
   fft = new p5.FFT(0.9, 1024);
   fft.setInput(source);
 
-  peakDetect = new p5.PeakDetect(20,20000,.20,15);
+  peakDetect = new p5.PeakDetect(20,20000,.20,10);
 
   
   if(newDraw == 0){
@@ -188,16 +188,21 @@ function draw() {
   // Beat Detection
   var amp = level.getLevel();
   // detectBeat(amp);
-  if (amp > .03){ // filter beat data removing background noise
+  if (amp > .08){ // filter beat data removing background noise
     data.push(amp);
-    print(amp);
+    // print(amp);
+    x=0;
+  }
+  else {
+    x++;
   }
   // else {print("SILENCE");}
 
-  // if (amp < silence && x > 120 && trans == true){
-  //   analyzeNoise();
-  //   getText();
-  // }
+  if (amp < silence && x > 100 && trans == true){
+    // analyzeNoise();
+    getText();
+    binOut += "/";
+  }
   
   // if (amp <.07 && x > 120 && trans == true){
   //   sentence += " ";
@@ -243,6 +248,7 @@ function detectPeak(amp) {
     //framesSinceLastPeak = 0;
     newpeak = false;
     waspeak = true;
+    x = 0;
   } else {
     ellipseWidth = 0.50;
     fill('black');
@@ -461,22 +467,27 @@ function getText(){
   let addedlet = "";
   // print(transbin);
   addedlet = charCodes[transbin];
+  transbin = "";
+  trans = false;
+  for(var i =0; i < data.length; i++){
+    total += data[i];
+    data.pop(i);
+  }
   if (addedlet != undefined){
-    // print(addedlet);
+    print(addedlet);
     sentence += addedlet;
-    transbin = "";
-    trans = false;
     return addedlet;
   }
-  trans = false;
 }
 
 function analyzeNoise(){
   let total = 0;
   for(var i =0; i < data.length; i++){
     total += data[i];
-    data.pop(i);
+    // data.pop(i);
   }
+  data = [];
+  // print(data);
   print("TOTAL: " + total);
 
   if(total > threshold){
