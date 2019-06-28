@@ -1,6 +1,74 @@
+//Global Variables
+let song; //imported song
+let data =[];
+let volhistory = [];
+let source = null;
+let fft = null;
+let level = null; // amplitude input
+let noise = null;
+let listening = false;
+let analyzed = true;
+let trans = false;
+let total = 0.0;
+let x = 0;
+let rate = 60;
+
+//Audio Vars
+let silence = 0.02; // prev 0.07
+let threshold = 5; // sets midway threshold between 'loud' and 'quiet' noise
+let quiet = 2.5;
+
+//Locks
+let lock = true;
+let quietlock = false;
+let performanceMode = false;
+
+//Peak
+let waspeak = false;
+let newpeak = false;
+
+// Morse Code Library:
+var charCodes = new Array(36); 
+charCodes[".-"]="a";
+charCodes["-..."]="b";
+charCodes["-.-."]="c";
+charCodes["-.."]="d";
+charCodes["."]="e";
+charCodes["..-."]="f";
+charCodes["--."]="g";
+charCodes["...."]="h";
+charCodes[".."]="i";
+charCodes[".---"]="j";
+charCodes["-.-"]="k";
+charCodes[".-.."]="l";
+charCodes["--"]="m";
+charCodes["-."]="n";
+charCodes["---"]="o";
+charCodes[".--."]="p";
+charCodes["--.-"]="q";
+charCodes[".-."]="r";
+charCodes["..."]="s";
+charCodes["-"]="t";
+charCodes["..-"]="u";
+charCodes["...-"]="v";
+charCodes[".--"]="w";
+charCodes["-..-"]="x";
+charCodes["-.--"]="y";
+charCodes["--.."]="z";
+charCodes[".----"]="1";
+charCodes["..---"]="2";
+charCodes["...--"]="3";
+charCodes["....-"]="4";
+charCodes["....."]="5";
+charCodes["-...."]="6";
+charCodes["--..."]="7";
+charCodes["---.."]="8";
+charCodes["----."]="9";
+charCodes["-----"]="0";
+
+
 function preload(){
   font = loadFont("./fonts/Overpass-Regular.ttf");
-  // song = loadSound('underwater.mp3');
 }
 
 function setup() {
@@ -9,11 +77,13 @@ function setup() {
   // Create Canvas
   var cnv = createCanvas(window.innerWidth, window.innerHeight);
   cnv.style('vertical-align', 'top'); // removes scroll bars
+
   //Style Canvas
   buttonTextHeight = 28;
   bRight = width - (width/50);
   btop = 26;
-  //Scaling that occurs for buttons may be slowing things down?
+
+  // Create Buttons
   recordButton = createButton('Record');
   recordButton.style('background-color', '#000000');
   recordButton.style('font-size', buttonTextHeight);
@@ -43,23 +113,20 @@ function setup() {
   bRight3 = bRight - resetButton.size().width;
   resetButton.position(bRight3, btop + 2*(bHeight + bPad));
 
-
-  colorMode(HSB);
-
   // Create an Audio input
   source = new p5.AudioIn();
-  // source.start();
-  // create new Amplitude
+  
+  // Amplitude
   level = new p5.Amplitude();
   level.setInput(source);
-  // level.setInput(song);
 
-  // song.play();
-
-  // create FFT
-  fft = new p5.FFT(0.9, 1024);
+  // FFT
+  colorMode(HSB);
+  fft = new p5.FFT(0.9, 1024);  // create FFT
   fft.setInput(source);
+  peakDetect = new p5.PeakDetect(20,20000,.20,10);
 
+  // Window Resizing
   if(newDraw == 0){
     source.start();
     listening = true;
@@ -70,58 +137,66 @@ function setup() {
 function draw() {
   background(0);
 
-  // Beat Detection
+  // Amplitude
   var amp = level.getLevel();
-  detectBeat(amp);
+  if (amp > .08){ // filter beat data removing background noise
+    data.push(amp);
+    // print(amp);
+    x=0;
+  }
+  else {
+    x++;
+  }
+  if (amp < silence && x > 100 && trans == true){
+    getText();
+    binOut += "/";
+  }
 
   // FFT
   var spectrum = fft.analyze();
+  peakDetect.update(fft);
+  detectPeak(amp);
 
-  recordData();
+  //Visualizers
   drawWaveForm();
   drawCircAmp();
   drawFFTLive();
-  // if(listening){
-  //drawAmphistory();
-  // }
+  drawAmphistory();
+  // Thresholds
   setThreshold();
   setQuiet();
+  showTQ();
+  // Output
   checkOutputLengthBinOut();
   checkOutputLengthSentence();
+  //Styling
   fill('#FFFFFF');
   textSize(fontSize);
-  // textFont(font); NOTE font is not currently applied bc it only has english characters and were getting a lot of non english chars rn
+  textFont(font); 
   text(binOut,50,50);
   text(sentence,50,90);
 }
 
-// https://therewasaguy.github.io/p5-music-viz/demos/01d_beat_detect_amplitude/
-function detectBeat(amp) {
-  if (amp  > beatCutoff && amp > beatThreshold){
-    beatCutoff = amp *1.2;
-    framesSinceLastBeat = 0;
-    x=0;
-    newbeat = false;
-    wasbeat = true;
-    print("BEAT")
-  } else{
-    if (amp < .06 && wasbeat == true){ //
+function detectPeak(amp) {
+  if ( peakDetect.isDetected && newpeak == true) {
+    ellipseWidth = 100;
+    fill('white');
+    print('PEAK')
+    newpeak = false;
+    waspeak = true;
+    x = 0;
+  } else {
+    ellipseWidth = 0.50;
+    fill('black');
+    if (amp < .009 && waspeak == true){ // analyze on the decaying end of a peak
       analyzeNoise();
-      wasbeat = false;
+      waspeak = false;
     }
-    if (amp < .002){ //
-      newbeat = true;
-    }
-    if (framesSinceLastBeat <= beatHoldFrames){
-      framesSinceLastBeat ++;
-    }
-    else{
-      beatCutoff *= beatDecayRate;
-      beatCutoff = Math.max(beatCutoff, beatThreshold);
+    if (amp < .002){ //once 'silence' is heard a new peak can be detected
+      newpeak = true;
     }
   }
 }
-
 
 function checkOutputLengthBinOut() {
   let bbox = font.textBounds(binOut, 50, 50, fontSize);
@@ -141,55 +216,42 @@ function checkOutputLengthSentence() {
   }
 }
 
-function recordData(){
-  noise = level.getLevel();
-  if (noise > silence) {
-    data.push(noise);
-    console.log(noise);
-    analyzed = false;
-  }
-  // else if (analyzed === false) {
-  //   // analyzeNoise();
-  //   analyzed = true;
-  // }
-}
-
 function getText(){
   let addedlet = "";
-  let num = parseInt(transbin,10)
-  addedlet += char(num);
-  print(addedlet);
-  sentence += addedlet;
+  // print(transbin);
+  addedlet = charCodes[transbin];
   transbin = "";
   trans = false;
-  return addedlet;
+  for(var i =0; i < data.length; i++){
+    total += data[i];
+    data.pop(i);
+  }
+  if (addedlet != undefined){
+    print(addedlet);
+    sentence += addedlet;
+    return addedlet;
+  }
 }
 
 function analyzeNoise(){
-  if (listening){
-    for (var i = 0; i < data.length; i=0) {
-      total += data[i];
-      console.log(total);
-      data.shift(i);
-    }
-    print("total:" + total);
+  let total = 0;
+  for(var i =0; i < data.length; i++){
+    total += data[i];
   }
-  if (total > quiet && total < threshold){
-    binOut+= "0";
-    transbin+= "0";
-    print(0);
-    circleFill = 'black';
-  }
+  data = [];
+  print("TOTAL: " + total);
 
-  if (total > threshold){
-    binOut+= "1";
-    transbin+= "1";
-    print(1);
-    circleFill = 'white';
+  if(total > threshold){
+    print("-");
+    binOut += "-";
+    transbin += "-";
+    trans = true;
   }
-  total = 0
-  if (transbin.length == 8){
-    getText();
+  else if (total > quiet){
+    print(".");
+    binOut += ".";
+    transbin += ".";
+    trans = true;
   }
 }
 
@@ -202,14 +264,3 @@ function windowResized() {
   setup();
 }
 
-// function keyPressed(e) {
-//   // spacebar pauses
-//   if (e.keyCode == 32) {
-//     //var context = new AudioContext();
-//     if (song.isPlaying()) {
-//       song.pause();
-//     } else {
-//       song.play();
-//     }
-//   }
-// }

@@ -1,28 +1,15 @@
 p5.disableFriendlyErrors = true; // disables FES
 
-//Global Variables
-let song; //imported song
-let data =[];
-let volhistory = [];
-let source = null;
-let fft = null;
-let level = null; // amplitude input
-let noise = null;
-let listening = false;
-let analyzed = true;
-let trans = false;
-let total = 0.0;
+//Visualizers
+let w = window.innerWidth / 64
 let circleFill = 'black';
 let newDraw = 1;
+let lineY = window.innerHeight/2; // threshold 5/10
+let lineQ = window.innerHeight - (window.innerHeight/4); // quiet 2/10
 //Output strings
 let sentence = "";
 let binOut = "";
 let transbin = "";
-//Audio Vars
-let silence = 0.02; // prev 0.07
-let threshold = 2.5; // sets midway threshold between 'loud' and 'quiet' noise
-let quiet = 0.8;
-let rate = 60;
 //Styling
 let font;
 let fontSize = 32;
@@ -39,36 +26,6 @@ let bRight3 = 0; // x location of button 3
 let btop = 0; // y location for the top of the first button
 let bHeight = 0; //height of the buttons
 let bPad = 0; //padding between the buttons
-let lineY = window.innerHeight/2; // threshold 5/10
-let lineQ = window.innerHeight - (window.innerHeight/4); // quiet 2/10
-
-let w = window.innerWidth / 64
-
-//Locks
-let lock = true;
-let quietlock = false;
-let performanceMode = false;
-
-let wasbeat = false;
-let newbeat = false;
-
-
-//Beat detection
-// :: Beat Detect Variables
-// how many draw loop frames before the beatCutoff starts to decay
-// so that another beat can be triggered.
-// frameRate() is usually around 60 frames per second,
-// so 20 fps = 3 beats per second, meaning if the song is over 180 BPM,
-// we wont respond to every beat.
-let beatHoldFrames = 20;
-// what amplitude level can trigger a beat?
-let beatThreshold = 0.11;
-
-// When we have a beat, beatCutoff will be reset to 1.1*beatThreshold, and then decay
-// Level must be greater than beatThreshold and beatCutoff before the next beat can trigger.
-let beatCutoff = 0;
-let beatDecayRate = 0.98; // how fast does beat cutoff decay?
-let framesSinceLastBeat = 0; // once this equals beatHoldFrames, beatCutoff starts to decay.
 
 
 
@@ -106,9 +63,6 @@ function toggleReset(){
   }
 }
 
-
-
-
 //Interactivity & Thresholds
 function setThreshold(){
   if (performanceMode === false) {
@@ -133,15 +87,20 @@ function setQuiet(){
   }
 }
 
+function showTQ(){
+  textSize(22);
+  fill('#FFFFFF');
+  textFont(font); 
+  text("T: "+ round(10 * threshold)/10,(bRight - 65), btop + 3.75*(bHeight + bPad));
+  text("Q: " + round(10 * quiet)/10,(bRight - 65), btop + 4.5*(bHeight + bPad));
+}
+
 
 function mouseDragged() {
-  textSize(16);
   if(lock === true){
     if ((mouseY < lineY + 30) && (mouseY > lineY - 30)){
       lineY = mouseY;
       threshold = map(lineY, 0, height, 10, 0);
-      frameRate(40);
-      text("Threshold"+ round(10 * threshold)/10,(window.innerWidth - 100),780);
       print("threshold :" + threshold);
       }
     }
@@ -149,8 +108,6 @@ function mouseDragged() {
     if ((mouseY < lineQ + 30) && (mouseY > lineQ - 30)){
       lineQ = mouseY;
       quiet = map(lineQ, 0, height, 10, 0);
-      frameRate(40);
-      text("Quiet" + round(10 * quiet)/10,(window.innerWidth - 80),780);
       print("quiet :" + quiet);
     }
   }
@@ -191,9 +148,6 @@ function mousePressed(){
     toggleReset();
   }
 }
-
-
-
 
 
 //Visualizers
