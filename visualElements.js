@@ -67,7 +67,7 @@ function toggleReset(){
 function setThreshold(){
   if (performanceMode === false) {
     strokeWeight(1);
-    stroke('white');
+    stroke(color(0, 0, 62));
     line(0, lineY, width, lineY);
   }
   else{
@@ -78,7 +78,7 @@ function setThreshold(){
 function setQuiet(){
   if (performanceMode === false) {
     strokeWeight(2);
-    stroke('grey');
+    stroke(color(0, 0, 31));
     line(0, lineQ, width, lineQ);
   }
   else{
@@ -116,6 +116,7 @@ function mouseDragged() {
 
 
 function keyPressed() {
+  // 'q' to lock/unlock quiet audio threshold
   if (keyCode === 81){
     print("Q Pressed")
     lock = !lock;
@@ -123,6 +124,7 @@ function keyPressed() {
     quietlock = !quietlock
     print("quietlock" + quietlock)
   }
+  // 'p' to turn Performance Mode on and off
   else if (keyCode === 80){
     performanceMode = !performanceMode
     print("Performance mode!")
@@ -136,6 +138,18 @@ function keyPressed() {
       stopButton = stopButton.show();
       resetButton = resetButton.show();
     }
+  }
+  // 's' to start recording
+  else if( keyCode == 83){
+    toggleRecord();
+  }
+  // 'd' to stop recording
+  else if( keyCode == 68){
+    toggleStop();
+  }
+  // 'r' to reset 
+  else if (keyCode == 82){
+    toggleReset();
   }
 }
 
@@ -206,16 +220,11 @@ function drawAmphistory(){
 
 function drawFFTLive(){
   let spectrum = fft.analyze();
-  //console.log(spectrum);
-  //stroke(255);
   noStroke();
-  //beginShape();
   for (let i = 0; i < spectrum.length; i++) {
     let amp = spectrum[i];
     let y = map(amp, 0, 256, height, 0);
-    //fill(i, 255, 255);
-    //fill(27,87,66);
-    fill(color(270,0,10));
+    fill(color(0,0,6));
     rect(i * w, y, w-10, height - y);
   }
 }
