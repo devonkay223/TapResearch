@@ -29,6 +29,7 @@ let newpeak = false;
 
 // Morse Code Library:
 var charCodes = new Array(36);
+charCodes[".-.-"]=" ";
 charCodes[".-"]="a";
 charCodes["-..."]="b";
 charCodes["-.-."]="c";
@@ -168,13 +169,13 @@ function draw() {
   drawFFTLive();
   drawAmphistory();
   // Thresholds
-  setThreshold();
   setQuiet();
+  setThreshold();
   showTQ();
   // Output
   checkOutputLengthBinOut();
   checkOutputLengthSentence();
-  //Styling
+  // Styling
   fill('#FFFFFF');
   textSize(fontSize);
   textFont(font);

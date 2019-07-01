@@ -66,8 +66,8 @@ function toggleReset(){
 //Interactivity & Thresholds
 function setThreshold(){
   if (performanceMode === false) {
-    strokeWeight(2);
-    stroke('red');
+    strokeWeight(1);
+    stroke('white');
     line(0, lineY, width, lineY);
   }
   else{
@@ -78,7 +78,7 @@ function setThreshold(){
 function setQuiet(){
   if (performanceMode === false) {
     strokeWeight(2);
-    stroke('blue');
+    stroke('grey');
     line(0, lineQ, width, lineQ);
   }
   else{
@@ -213,7 +213,7 @@ function drawFFTLive(){
     let y = map(amp, 0, 256, height, 0);
     //fill(i, 255, 255);
     //fill(27,87,66);
-    fill(color(159,68,66));
+    fill(color(270,0,10));
     rect(i * w, y, w-10, height - y);
   }
 }
