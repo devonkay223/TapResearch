@@ -1,22 +1,20 @@
-//Global Variables
-let song; //imported song
-let data =[];
-let volhistory = [];
-let source = null;
-let fft = null;
+// ----------------
+// Global Variables
+// ----------------
+let data =[]; // array of amplitude values
+let volhistory = []; // array of volume values (used in AmpHistory)
+let source = null; // audio input
+let fft = null; // fft
 let level = null; // amplitude input
-let noise = null;
-let listening = false;
-let analyzed = true;
-let trans = false;
-let total = 0.0;
-let x = 0;
-let rate = 60;
+let listening = false; // is the audio source live
+let trans = false; // have the codeTemp vlaues been translated
+let x = 0; // draw calls counter
+let rate = 60; // frame rate
 
 //Audio Vars
-let silence = 0.02; // prev 0.07
-let threshold = 3; // sets midway threshold between 'loud' and 'quiet' noise
-let quiet = .5;
+let silence = 0.02; // amp value that indicates audible silence
+let threshold = 3; // sets midway threshold between 'loud' and 'quiet' totals
+let quiet = .5; // sets bottom threshold of totals
 
 //Locks
 let lock = true;
@@ -24,8 +22,8 @@ let quietlock = false;
 let performanceMode = false;
 
 //Peak
-let waspeak = false;
-let newpeak = false;
+let waspeak = false; // var to indicate a peak was detected but has not been analyzed
+let newpeak = false; // var to indicate there has been quiet thus a new noise could occur
 
 // Morse Code Library:
 var charCodes = new Array(36);
@@ -67,13 +65,16 @@ charCodes["---.."]="8";
 charCodes["----."]="9";
 charCodes["-----"]="0";
 
+// -----------------
+// Default Functions
+// -----------------
 
 function preload(){
   font = loadFont("./fonts/Overpass-Regular.ttf");
 }
 
 function setup() {
-  frameRate(rate);
+  frameRate(rate); // set framerate
 
   // Create Canvas
   var cnv = createCanvas(window.innerWidth, window.innerHeight);
@@ -83,6 +84,7 @@ function setup() {
   buttonTextHeight = 28;
   bRight = width - (width/50);
   btop = 26;
+  colorMode(HSB);
 
   // Create Buttons
   recordButton = createButton('Record');
@@ -122,112 +124,98 @@ function setup() {
   level.setInput(source);
 
   // FFT
-  colorMode(HSB);
   fft = new p5.FFT(0.9, 1024);  // create FFT
   fft.setInput(source);
   peakDetect = new p5.PeakDetect(20,20000,.20,10);
 
   // Window Resizing
-  if(newDraw == 0){
+  if(resize == 1){
     source.start();
     listening = true;
-    newDraw = 0;
+    resize = 1;
   }
 
+  // Map line to default threshold values
   lineY = map(threshold,0,10,height,0);
-  print(lineY);
   lineQ = map(quiet, 0, 10, height, 0);
-  print(lineQ);
 }
 
 function draw() {
-  background(0);
+  background(0); // set background to black
 
   // Amplitude
   var amp = level.getLevel();
-  if (amp > .08){ // filter beat data removing background noise
+  // filter beat data removing background noise
+  if (amp > .08){ 
     data.push(amp);
-    // print(amp);
-    x=0;
+    x = 0; // reset draw counter
   }
   else {
-    x++;
+    x++; // count calls to draw since last 'useful' amp data
   }
+  // translate text
+  // if there is silence and it has been 1.6 seconds since previous noise
   if (amp < silence && x > 100 && trans == true){
     getText();
-    binOut += "/";
+    codeOut += "/"; // print visual delination between each char of morse code
   }
 
-  // FFT
+  // Peak Detection
   var spectrum = fft.analyze();
   peakDetect.update(fft);
   detectPeak(amp);
 
-  //Visualizers
+  // Thresholds
+  showTQ();
+  // Visualizers
   drawWaveForm();
   drawCircAmp();
   drawFFTLive();
-  drawAmphistory();
-  // Thresholds
   setQuiet();
   setThreshold();
-  showTQ();
+  drawAmphistory();
   // Output
-  checkOutputLengthBinOut();
+  checkOutputLengthcodeOut();
   checkOutputLengthSentence();
   // Styling
   fill('#FFFFFF');
   textSize(fontSize);
   textFont(font);
-  text(binOut,50,50);
+  text(codeOut,50,50);
   text(sentence,50,90);
 }
 
+// ----------------
+// Audio Processing
+// ----------------
+
+// Peak Detection: is there a peak in the FFT data indicating a noise 
 function detectPeak(amp) {
-  if ( peakDetect.isDetected && newpeak == true) {
-    ellipseWidth = 100;
-    fill('white');
-    print('PEAK')
-    newpeak = false;
-    waspeak = true;
-    x = 0;
+  // if the FFT has a peak and a new peak can be read
+  if (peakDetect.isDetected && newpeak == true) {
+    newpeak = false; // a new peack cannot occur until there has been silence
+    waspeak = true; // there has been a peak that has not been analyzed
+    x = 0; // reset draw calls since last peak
   } else {
-    ellipseWidth = 0.50;
-    fill('black');
-    if (amp < .009 && waspeak == true){ // analyze on the decaying end of a peak
+    // analyze audio on the decaying end of a peak
+    if (amp < .009 && waspeak == true){ 
       analyzeNoise();
-      waspeak = false;
+      waspeak = false; // the previous peak has been analyzed
     }
-    if (amp < .002){ //once 'silence' is heard a new peak can be detected
-      newpeak = true;
+    // once 'silence' is heard a new peak can be detected
+    if (amp < .002){ 
+      newpeak = true; 
     }
   }
 }
 
-function checkOutputLengthBinOut() {
-  let bbox = font.textBounds(binOut, 50, 50, fontSize);
-
-  if ((bbox.x + bbox.w + 30) >= bRight1){
-    print("TOO WIDE");
-    binOut = binOut.substring(1, binOut.length);
-  }
-}
-
-function checkOutputLengthSentence() {
-  let bbox = font.textBounds(sentence, 50, 50, fontSize);
-
-  if ((bbox.x + bbox.w + 30) >= bRight1){
-    print("TOO WIDE");
-    sentence = sentence.substring(1, sentence.length);
-  }
-}
-
+// 
 function getText(){
   let addedlet = "";
-  // print(transbin);
-  addedlet = charCodes[transbin];
-  transbin = "";
+  addedlet = charCodes[codeTemp];
+  codeTemp = "";
   trans = false;
+  let total = 0;
   for(var i =0; i < data.length; i++){
     total += data[i];
     data.pop(i);
@@ -249,23 +237,23 @@ function analyzeNoise(){
 
   if(total > threshold){
     print("-");
-    binOut += "-";
-    transbin += "-";
+    codeOut += "-";
+    codeTemp += "-";
     trans = true;
     circleFill = 'white';
 
   }
   else if (total > quiet){
     print(".");
-    binOut += ".";
-    transbin += ".";
+    codeOut += ".";
+    codeTemp += ".";
     trans = true;
     circleFill = 'black';
   }
 }
 
 function windowResized() {
-  newDraw = 0;
+  resize = 1;
   resizeCanvas(window.innerWidth, window.innerHeight);
   recordButton.remove();
   stopButton.remove();
