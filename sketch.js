@@ -126,7 +126,7 @@ function setup() {
   // FFT
   fft = new p5.FFT(0.9, 1024);  // create FFT
   fft.setInput(source);
-  peakDetect = new p5.PeakDetect(20,20000,.20,10);
+  peakDetect = new p5.PeakDetect(20, 20000, .09, 3);
 
   // Window Resizing
   if(resize == 1){
@@ -136,7 +136,7 @@ function setup() {
   }
 
   // Map line to default threshold values
-  lineY = map(threshold,0,10,height,0);
+  lineY = map(threshold, 0, 10, height, 0);
   lineQ = map(quiet, 0, 10, height, 0);
 }
 
@@ -153,9 +153,9 @@ function draw() {
   else {
     x++; // count calls to draw since last 'useful' amp data
   }
-  // translate text
-  // if there is silence and it has been 1.6 seconds since previous noise
-  if (amp < silence && x > 100 && trans == true){
+
+  // translate text - if there is silence and it has been 1 second since previous noise
+  if (amp < silence && x > 60 && trans == true){
     getText();
     codeOut += "/"; // print visual delination between each char of morse code
   }
@@ -198,12 +198,12 @@ function detectPeak(amp) {
     x = 0; // reset draw calls since last peak
   } else {
     // analyze audio on the decaying end of a peak
-    if (amp < .009 && waspeak == true){ 
+    if (amp < .04 && waspeak == true){ 
       analyzeNoise();
       waspeak = false; // the previous peak has been analyzed
     }
     // once 'silence' is heard a new peak can be detected
-    if (amp < .002){ 
+    if (amp < .04){  // CHANGE THIS LINE TO INCREASE SPEED OF TAPPING
       newpeak = true; 
     }
   }
