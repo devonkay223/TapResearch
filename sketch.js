@@ -15,8 +15,8 @@ let rate = 60;
 
 //Audio Vars
 let silence = 0.02; // prev 0.07
-let threshold = 5; // sets midway threshold between 'loud' and 'quiet' noise
-let quiet = 2.5;
+let threshold = 2; // sets midway threshold between 'loud' and 'quiet' noise
+let quiet = 1;
 
 //Locks
 let lock = true;
@@ -28,7 +28,7 @@ let waspeak = false;
 let newpeak = false;
 
 // Morse Code Library:
-var charCodes = new Array(36); 
+var charCodes = new Array(36);
 charCodes[".-"]="a";
 charCodes["-..."]="b";
 charCodes["-.-."]="c";
@@ -115,7 +115,7 @@ function setup() {
 
   // Create an Audio input
   source = new p5.AudioIn();
-  
+
   // Amplitude
   level = new p5.Amplitude();
   level.setInput(source);
@@ -132,6 +132,11 @@ function setup() {
     listening = true;
     newDraw = 0;
   }
+
+  lineY = map(threshold,0,10,height,0);
+  print(lineY);
+  lineQ = map(quiet, 0, 10, height, 0);
+  print(lineQ);
 }
 
 function draw() {
@@ -172,7 +177,7 @@ function draw() {
   //Styling
   fill('#FFFFFF');
   textSize(fontSize);
-  textFont(font); 
+  textFont(font);
   text(binOut,50,50);
   text(sentence,50,90);
 }
@@ -263,4 +268,3 @@ function windowResized() {
   resetButton.remove();
   setup();
 }
-

@@ -4,8 +4,8 @@ p5.disableFriendlyErrors = true; // disables FES
 let w = window.innerWidth / 64
 let circleFill = 'black';
 let newDraw = 1;
-let lineY = window.innerHeight/2; // threshold 5/10
-let lineQ = window.innerHeight - (window.innerHeight/4); // quiet 2/10
+let lineY = threshold; // threshold 5/10
+let lineQ = quiet; // quiet 2/10
 //Output strings
 let sentence = "";
 let binOut = "";
@@ -67,19 +67,18 @@ function toggleReset(){
 function setThreshold(){
   if (performanceMode === false) {
     strokeWeight(2);
-    stroke('white');
+    stroke('red');
     line(0, lineY, width, lineY);
   }
   else{
     stroke('black')
-    line(0, lineY, width, lineY);
   }
 }
 
 function setQuiet(){
   if (performanceMode === false) {
     strokeWeight(2);
-    stroke('gray');
+    stroke('blue');
     line(0, lineQ, width, lineQ);
   }
   else{
@@ -90,7 +89,7 @@ function setQuiet(){
 function showTQ(){
   textSize(22);
   fill('#FFFFFF');
-  textFont(font); 
+  textFont(font);
   text("T: "+ round(10 * threshold)/10,(bRight - 65), btop + 3.75*(bHeight + bPad));
   text("Q: " + round(10 * quiet)/10,(bRight - 65), btop + 4.5*(bHeight + bPad));
 }
@@ -122,7 +121,7 @@ function keyPressed() {
     quietlock = !quietlock
     print("quietlock" + quietlock)
   }
-  if (keyCode === 80)
+  else if (keyCode === 80){
     performanceMode = !performanceMode
     print("Performance mode!")
     if (performanceMode === true) {
@@ -135,6 +134,7 @@ function keyPressed() {
       stopButton = stopButton.show();
       resetButton = resetButton.show();
     }
+  }
 }
 
 function mousePressed(){
