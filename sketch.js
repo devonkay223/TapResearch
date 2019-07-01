@@ -252,12 +252,15 @@ function analyzeNoise(){
     binOut += "-";
     transbin += "-";
     trans = true;
+    circleFill = 'white';
+
   }
   else if (total > quiet){
     print(".");
     binOut += ".";
     transbin += ".";
     trans = true;
+    circleFill = 'black';
   }
 }
 

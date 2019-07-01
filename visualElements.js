@@ -53,7 +53,7 @@ function toggleReset(){
   clear();
   background(0);
   drawWaveForm();
-  circleFill = 'black';p5.js
+  circleFill = 'black';
   drawCircAmp();
   binOut = "";
   sentence = "";
@@ -90,8 +90,10 @@ function showTQ(){
   textSize(22);
   fill('#FFFFFF');
   textFont(font);
-  text("T: "+ round(10 * threshold)/10,(bRight - 65), btop + 3.75*(bHeight + bPad));
-  text("Q: " + round(10 * quiet)/10,(bRight - 65), btop + 4.5*(bHeight + bPad));
+  if(performanceMode === false){
+    text("T: "+ round(10 * threshold)/10,(bRight - 65), btop + 3.75*(bHeight + bPad));
+    text("Q: " + round(10 * quiet)/10,(bRight - 65), btop + 4.5*(bHeight + bPad));
+  }
 }
 
 
