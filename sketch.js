@@ -15,8 +15,8 @@ let rate = 60;
 
 //Audio Vars
 let silence = 0.02; // prev 0.07
-let threshold = 2; // sets midway threshold between 'loud' and 'quiet' noise
-let quiet = 1;
+let threshold = 8; // sets midway threshold between 'loud' and 'quiet' noise
+let quiet = .5;
 
 //Locks
 let lock = true;
