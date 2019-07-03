@@ -100,7 +100,7 @@ function checkOutputLengthSentence() {
 
 // threshold variable slider
 function setThreshold(){
-  if (performanceMode === false) {
+  if (pMode === false) {
     strokeWeight(1);
     stroke(color(0, 0, 62));
     line(0, lineY, width, lineY);
@@ -112,7 +112,7 @@ function setThreshold(){
 
 // quiet variable slider
 function setQuiet(){
-  if (performanceMode === false) {
+  if (pMode === false) {
     strokeWeight(2);
     stroke(color(0, 0, 31));
     line(0, lineQ, width, lineQ);
@@ -127,7 +127,7 @@ function showTQ(){
   textSize(22);
   fill('#FFFFFF');
   textFont(font);
-  if(performanceMode === false){
+  if(pMode === false){
     text("T: "+ round(10 * threshold)/10,(bRight - 65), btop + 3.75*(bHeight + bPad));
     text("Q: " + round(10 * quiet)/10,(bRight - 65), btop + 4.5*(bHeight + bPad));
   }
@@ -160,20 +160,10 @@ function keyPressed() {
     lock = !lock;
     quietlock = !quietlock
   }
-  // 'p' to turn Performance Mode on and off
   else if (keyCode === 80){
-    performanceMode = !performanceMode
-    print("Performance mode!")
-    if (performanceMode === true) {
-      startButton = startButton.hide();
-      stopButton = stopButton.hide();
-      resetButton = resetButton.hide();
-    }
-    if (performanceMode === false) {
-      startButton = startButton.show();
-      stopButton = stopButton.show();
-      resetButton = resetButton.show();
-    }
+    keepPerform = !keepPerform;
+    pMode = !pMode
+    performanceMode(keepPerform);
   }
   // 's' to start listening
   else if( keyCode == 83){
@@ -187,6 +177,21 @@ function keyPressed() {
   else if (keyCode == 82){
     toggleReset();
   }
+}
+
+// 'p' to turn Performance Mode on and off
+function performanceMode(keepPerform){
+    print("Performance mode!")
+    if (pMode === true || keepPerform === true) {
+      startButton = startButton.hide();
+      stopButton = stopButton.hide();
+      resetButton = resetButton.hide();
+    }
+    if (pMode === false) {
+      startButton = startButton.show();
+      stopButton = stopButton.show();
+      resetButton = resetButton.show();
+    }
 }
 
 // define the limits of buttons

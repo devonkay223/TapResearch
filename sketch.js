@@ -19,7 +19,8 @@ let quiet = .5; // sets bottom threshold of totals
 //Locks
 let lock = true;
 let quietlock = false;
-let performanceMode = false;
+let pMode = false;
+let keepPerform = false;
 
 //Peak
 let waspeak = false; // var to indicate a peak was detected but has not been analyzed
@@ -130,10 +131,14 @@ function setup() {
 
   // Window Resizing
   if(resize == 1){
+    if (listening == true){
     source.start();
+    }
+    performanceMode(keepPerform);
     //listening = true;
-    resize = 1;
+    resize = 1
   }
+
 
   // Map line to default threshold values
   lineY = map(threshold, 0, 10, height, 0);
