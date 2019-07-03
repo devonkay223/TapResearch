@@ -8,7 +8,7 @@ let w = window.innerWidth/64;
 let circleFill = 'black';
 let resize = 0; // is the window being resized
 let lineY = threshold;
-let lineQ = quiet; 
+let lineQ = quiet;
 // Output strings
 let sentence = ""; // output scentence
 let codeOut = ""; // output code
@@ -40,7 +40,7 @@ function toggleStart(){
   getAudioContext().resume();
   if (!listening) {
       listening = true;
-      source.start(); // start audio input 
+      source.start(); // start audio input
   }
 }
 
@@ -48,11 +48,11 @@ function toggleStart(){
 function toggleStop(){
   if(listening){
     listening = false;
-    source.stop(); // stop audio input 
+    source.stop(); // stop audio input
   }
 }
 
-// Reset button functionality 
+// Reset button functionality
 function toggleReset(){
   resize = 0; // indicates the window is not being resized
   toggleStop();
@@ -143,7 +143,7 @@ function mouseDragged() {
       print("threshold :" + threshold);
       }
     }
-  // move quiet line/set quiet value  
+  // move quiet line/set quiet value
   if(quietlock === true){
     if ((mouseY < lineQ + 30) && (mouseY > lineQ - 30)){
       lineQ = mouseY;
@@ -183,13 +183,13 @@ function keyPressed() {
   else if( keyCode == 68){
     toggleStop();
   }
-  // 'r' to reset 
+  // 'r' to reset
   else if (keyCode == 82){
     toggleReset();
   }
 }
 
-// define the limits of buttons 
+// define the limits of buttons
 function mousePressed(){
   if ((mouseX > bRight1) && (mouseX < bRight) && (mouseY > btop) && (mouseY < btop + bHeight)){
     toggleStart();
@@ -231,7 +231,7 @@ function drawCircAmp(){
     ellipse(width/2,height/2,y, y);
 }
 
-// Amp History: bottom history line 
+// Amp History: bottom history line
 function drawAmphistory(){
   let vol = source.getLevel();
   if(listening){

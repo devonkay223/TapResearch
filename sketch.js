@@ -87,16 +87,16 @@ function setup() {
   colorMode(HSB);
 
   // Create Buttons
-  recordButton = createButton('Record');
-  recordButton.style('background-color', '#000000');
-  recordButton.style('font-size', buttonTextHeight);
-  recordButton.style('font-family', font);
-  recordButton.style('color', '#ffffff');
-  recordButton.style('border-color', '#ffffff');
-  bHeight = recordButton.size().height;
+  startButton = createButton('Start');
+  startButton.style('background-color', '#000000');
+  startButton.style('font-size', buttonTextHeight);
+  startButton.style('font-family', font);
+  startButton.style('color', '#ffffff');
+  startButton.style('border-color', '#ffffff');
+  bHeight = startButton.size().height;
   bPad = bHeight/6;
-  bRight1 = bRight - recordButton.size().width;
-  recordButton.position(bRight1, btop);
+  bRight1 = bRight - startButton.size().width;
+  startButton.position(bRight1, btop);
 
   stopButton = createButton('Stop');
   stopButton.style('background-color', '#000000');
@@ -131,7 +131,7 @@ function setup() {
   // Window Resizing
   if(resize == 1){
     source.start();
-    listening = true;
+    //listening = true;
     resize = 1;
   }
 
@@ -146,7 +146,7 @@ function draw() {
   // Amplitude
   var amp = level.getLevel();
   // filter beat data removing background noise
-  if (amp > .08){ 
+  if (amp > .08){
     data.push(amp);
     x = 0; // reset draw counter
   }
@@ -189,7 +189,7 @@ function draw() {
 // Audio Processing
 // ----------------
 
-// Peak Detection: is there a peak in the FFT data indicating a noise 
+// Peak Detection: is there a peak in the FFT data indicating a noise
 function detectPeak(amp) {
   // if the FFT has a peak and a new peak can be read
   if (peakDetect.isDetected && newpeak == true) {
@@ -198,18 +198,18 @@ function detectPeak(amp) {
     x = 0; // reset draw calls since last peak
   } else {
     // analyze audio on the decaying end of a peak
-    if (amp < .04 && waspeak == true){ 
+    if (amp < .04 && waspeak == true){
       analyzeNoise();
       waspeak = false; // the previous peak has been analyzed
     }
     // once 'silence' is heard a new peak can be detected
     if (amp < .04){  // CHANGE THIS LINE TO INCREASE SPEED OF TAPPING
-      newpeak = true; 
+      newpeak = true;
     }
   }
 }
 
-// 
+//
 function getText(){
   let addedlet = "";
   addedlet = charCodes[codeTemp];
@@ -255,7 +255,7 @@ function analyzeNoise(){
 function windowResized() {
   resize = 1;
   resizeCanvas(window.innerWidth, window.innerHeight);
-  recordButton.remove();
+  startButton.remove();
   stopButton.remove();
   resetButton.remove();
   setup();
