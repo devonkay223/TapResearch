@@ -12,7 +12,7 @@ let x = 0; // draw calls counter
 let rate = 60; // frame rate
 
 //Audio Vars
-let silence = 0.02; // amp value that indicates audible silence
+let silence = 0.07; // amp value that indicates audible silence
 let threshold = 3; // sets midway threshold between 'loud' and 'quiet' totals
 let quiet = .5; // sets bottom threshold of totals
 
