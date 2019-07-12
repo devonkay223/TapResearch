@@ -72,6 +72,7 @@ charCodes["-----"]="0";
 
 function preload(){
   font = loadFont("./fonts/Overpass-Regular.ttf");
+  img = loadImage('image/morse.jpg');
 }
 
 function setup() {
@@ -146,7 +147,15 @@ function setup() {
 }
 
 function draw() {
-  background(0); // set background to black
+  if (demo != true){
+    background(0); // set background to black
+    print('there');
+  }
+  else {
+    background(img);
+    print('here');
+  }
+
 
   // Amplitude
   var amp = level.getLevel();

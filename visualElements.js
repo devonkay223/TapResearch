@@ -30,6 +30,8 @@ let btop = 0; // y location for the top of the first button
 let bHeight = 0; // height of the buttons
 let bPad = 0; // padding between the buttons
 
+let demo = false;
+let img;
 
 // --------
 // Buttons
@@ -176,6 +178,12 @@ function keyPressed() {
   // 'r' to reset
   else if (keyCode == 82){
     toggleReset();
+  }
+  else if (keyCode == 77){
+    demo = !demo;
+    print('hello');
+    //createImage('image/morse.jpg');
+    background(img);
   }
 }
 
