@@ -72,7 +72,7 @@ charCodes["-----"]="0";
 
 function preload(){
   font = loadFont("./fonts/Overpass-Regular.ttf");
-  img = loadImage('image/morse.jpg');
+  img = loadImage('image/morse3.jpg');
 }
 
 function setup() {
@@ -149,11 +149,9 @@ function setup() {
 function draw() {
   if (demo != true){
     background(0); // set background to black
-    print('there');
   }
   else {
     background(img);
-    print('here');
   }
 
 

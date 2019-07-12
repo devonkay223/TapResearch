@@ -222,26 +222,30 @@ function mousePressed(){
 
 // Wave Form: live top white line
 function drawWaveForm() {
-  const wave = fft.waveform(source); // Extract the spectrum from the time domain
-  stroke('White');
-  noFill();
-  beginShape();
-  // connect points of the shape of the input sound
-	wave.forEach(function (amp, i) {
-		const x = i / wave.length * width;
-		const y = map(wave[i], -1, 1, 0, (height/2));
-		vertex(x, y);
-	})
-  endShape();
+  if (demo != true){
+    const wave = fft.waveform(source); // Extract the spectrum from the time domain
+    stroke('White');
+    noFill();
+    beginShape();
+    // connect points of the shape of the input sound
+  	wave.forEach(function (amp, i) {
+  		const x = i / wave.length * width;
+  		const y = map(wave[i], -1, 1, 0, (height/2));
+  		vertex(x, y);
+  	})
+    endShape();
+  }
 }
 
 // Circle Amp: circle
 function drawCircAmp(){
+  if (demo != true){
     stroke(255);
     let vol = level.getLevel();
     fill(circleFill);
     let y = map(vol,0,1,(height/2)-50,0);
     ellipse(width/2,height/2,y, y);
+  }
 }
 
 // Amp History: bottom history line
@@ -266,12 +270,14 @@ function drawAmphistory(){
 
 // FFT: gray background live FFT graph
 function drawFFTLive(){
-  let spectrum = fft.analyze();
-  noStroke();
-  for (let i = 0; i < spectrum.length; i++) {
-    let amp = spectrum[i];
-    let y = map(amp, 0, 256, height, 0);
-    fill(color(0,0,30));
-    rect(i * w, y, w-10, height - y);
+  if (demo != true){
+    let spectrum = fft.analyze();
+    noStroke();
+    for (let i = 0; i < spectrum.length; i++) {
+      let amp = spectrum[i];
+      let y = map(amp, 0, 256, height, 0);
+      fill(color(0,0,30));
+      rect(i * w, y, w-10, height - y);
+    }
   }
 }
