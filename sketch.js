@@ -210,7 +210,7 @@ function detectPeak(amp) {
     x = 0; // reset draw calls since last peak
   } else {
     // analyze audio on the decaying end of a peak
-    if (amp < .04 && waspeak == true){
+    if (amp < .01 && waspeak == true){
       analyzeNoise();
       waspeak = false; // the previous peak has been analyzed
     }
