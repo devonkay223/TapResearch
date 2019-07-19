@@ -221,17 +221,22 @@ function detectPeak(amp) {
   }
 }
 
-//
+// Translates morse code into english letters
 function getText(){
-  let addedlet = "";
-  addedlet = charCodes[codeTemp];
-  codeTemp = "";
+  let addedlet = ""; // tremp new letter variable
   trans = false;
   let total = 0;
+
+  // clear excess noise in data[]
   for(var i =0; i < data.length; i++){
     total += data[i];
     data.pop(i);
   }
+
+  addedlet = charCodes[codeTemp]; //look up morse cade on the charCdes array
+  codeTemp = ""; // reset untraslated chunk of morse code to be blank
+
+  // output the morse code trnaslation exists in the charCodes library
   if (addedlet != undefined){
     print(addedlet);
     sentence += addedlet;
@@ -239,14 +244,18 @@ function getText(){
   }
 }
 
+// determine if previous chunk of noise is a dot or dash via accumulated noise
 function analyzeNoise(){
-  let total = 0;
+  let total = 0; //temp variable for accumulated noise
+
+  // total up all noise in last peak
   for(var i =0; i < data.length; i++){
     total += data[i];
   }
-  data = [];
+  data = []; // resset data to empty
   print("TOTAL: " + total);
 
+  // evaluated if total falls in the dot or dash range
   if(total > threshold){
     print("-");
     codeOut += "-";
@@ -264,11 +273,16 @@ function analyzeNoise(){
   }
 }
 
+// resize window
 function windowResized() {
-  resize = 1;
-  resizeCanvas(window.innerWidth, window.innerHeight);
-  startButton.remove();
+  resize = 1; 
+  resizeCanvas(window.innerWidth, window.innerHeight); 
+
+  //remove all button instances
+  startButton.remove(); 
   stopButton.remove();
   resetButton.remove();
+
+  // call set up to redraw essential elements
   setup();
 }
