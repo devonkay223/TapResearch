@@ -7,8 +7,10 @@ p5.disableFriendlyErrors = true; // disables FES --> fit to browser/removes scro
 let w = window.innerWidth/64;
 let circleFill = 'black';
 let resize = 0; // is the window being resized
-let lineY = threshold;
-let lineQ = quiet;
+let lineY = threshold; // screen mapping for threshold var slider
+let lineQ = quiet; // screen mapping for quiet var slider
+let img; // demo mode morse code ref img
+let demo = false; // enable/disable demo mode
 // Output strings
 let sentence = ""; // output scentence
 let codeOut = ""; // output code
@@ -29,9 +31,12 @@ let bRight3 = 0; // x location of button 3
 let btop = 0; // y location for the top of the first button
 let bHeight = 0; // height of the buttons
 let bPad = 0; // padding between the buttons
+// Locks
+let lock = true; // threshold slider locks
+let quietlock = false;  // threshold slider locks
+let pMode = false;  // performance mode locks
+let keepPerform = false; // performance mode locks
 
-let demo = false;
-let img;
 
 // --------
 // Buttons
@@ -57,15 +62,20 @@ function toggleStop(){
 // Reset button functionality
 function toggleReset(){
   resize = 0; // indicates the window is not being resized
-  toggleStop();
+  toggleStop(); // stop taking in audio
   clear();
+
+  // reset visuals
   background(0);
   drawWaveForm();
-  circleFill = 'black';
   drawCircAmp();
+  circleFill = 'black';
+  // reset outputs
   codeOut = "";
   sentence = "";
   codeTemp = "";
+
+  // resets amp history
   while (volhistory.length > 0){
     volhistory.pop();
   }
@@ -85,6 +95,7 @@ function checkOutputLengthcodeOut() {
     codeOut = codeOut.substring(1, codeOut.length);
   }
 }
+
 // ensure the output text doesn't overlap with the buttons by scrolling the text
 function checkOutputLengthSentence() {
   let bbox = font.textBounds(sentence, 50, 50, fontSize);
@@ -107,7 +118,7 @@ function setThreshold(){
     stroke(color(0, 0, 62));
     line(0, lineY, width, lineY);
   }
-  else{
+  else{ // if in performance mode turn slider black to remove from screen
     stroke('black')
   }
 }
@@ -119,7 +130,7 @@ function setQuiet(){
     stroke(color(0, 0, 31));
     line(0, lineQ, width, lineQ);
   }
-  else{
+  else{ // if in performance mode turn slider black to remove from screen
     stroke('black')
   }
 }
@@ -129,7 +140,7 @@ function showTQ(){
   textSize(22);
   fill('#FFFFFF');
   textFont(font);
-  if(pMode === false){
+  if(pMode === false){ 
     text("T: "+ round(10 * threshold)/10,(bRight - 65), btop + 3.75*(bHeight + bPad));
     text("Q: " + round(10 * quiet)/10,(bRight - 65), btop + 4.5*(bHeight + bPad));
   }
@@ -155,13 +166,14 @@ function mouseDragged() {
   }
 }
 
-// actions for hotkeys q, p, s, d, r
+// actions for hotkeys q, p, s, d, r, m
 function keyPressed() {
   // 'q' to lock/unlock quiet audio threshold
   if (keyCode === 81){
     lock = !lock;
     quietlock = !quietlock
   }
+  // 'p' to enable/disable performance mode
   else if (keyCode === 80){
     keepPerform = !keepPerform;
     pMode = !pMode
@@ -179,6 +191,7 @@ function keyPressed() {
   else if (keyCode == 82){
     toggleReset();
   }
+  // 'm' to enable demo mode
   else if (keyCode == 77){
     demo = !demo;
     print('hello');
@@ -190,11 +203,13 @@ function keyPressed() {
 // 'p' to turn Performance Mode on and off
 function performanceMode(keepPerform){
     print("Performance mode!")
+    // hide buttons
     if (pMode === true || keepPerform === true) {
       startButton = startButton.hide();
       stopButton = stopButton.hide();
       resetButton = resetButton.hide();
     }
+    // show buttons
     if (pMode === false) {
       startButton = startButton.show();
       stopButton = stopButton.show();
@@ -204,12 +219,15 @@ function performanceMode(keepPerform){
 
 // define the limits of buttons
 function mousePressed(){
+  // Start button
   if ((mouseX > bRight1) && (mouseX < bRight) && (mouseY > btop) && (mouseY < btop + bHeight)){
     toggleStart();
   }
+  // Stop button
   else if ((mouseX > bRight2) && (mouseX < bRight) && (mouseY > (btop + bHeight + bPad)) && (mouseY < (btop + 2*bHeight))){
     toggleStop();
   }
+  // Reset button
   else if ((mouseX > bRight3) && (mouseX < bRight) && (mouseY > (btop + 2*(bHeight + bPad)) && (mouseY < (btop + 3*bHeight + 2*bPad)))){
     toggleReset();
   }

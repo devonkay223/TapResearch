@@ -10,18 +10,10 @@ let listening = false; // is the audio source live
 let trans = false; // have the codeTemp vlaues been translated
 let x = 0; // draw calls counter
 let rate = 60; // frame rate
-
 //Audio Vars
 let silence = 0.07; // amp value that indicates audible silence
 let threshold = 3; // sets midway threshold between 'loud' and 'quiet' totals
 let quiet = .5; // sets bottom threshold of totals
-
-//Locks
-let lock = true;
-let quietlock = false;
-let pMode = false;
-let keepPerform = false;
-
 //Peak
 let waspeak = false; // var to indicate a peak was detected but has not been analyzed
 let newpeak = false; // var to indicate there has been quiet thus a new noise could occur
@@ -66,13 +58,14 @@ charCodes["---.."]="8";
 charCodes["----."]="9";
 charCodes["-----"]="0";
 
+
 // -----------------
 // Default Functions
 // -----------------
 
 function preload(){
-  font = loadFont("./fonts/Overpass-Regular.ttf");
-  img = loadImage('image/morse3.jpg');
+  font = loadFont("./fonts/Overpass-Regular.ttf"); // load font
+  img = loadImage('image/morse3.jpg'); // load morse code image
 }
 
 function setup() {
@@ -140,20 +133,19 @@ function setup() {
     resize = 1
   }
 
-
   // Map line to default threshold values
   lineY = map(threshold, 0, 10, height, 0);
   lineQ = map(quiet, 0, 10, height, 0);
 }
 
 function draw() {
+  // demo mode
   if (demo != true){
     background(0); // set background to black
   }
   else {
     background(img);
   }
-
 
   // Amplitude
   var amp = level.getLevel();
