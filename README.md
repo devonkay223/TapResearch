@@ -16,6 +16,9 @@ Features
   - Live Amplitude & Amplitude History
   - FFT Spectrum Visualizer
   - Morse Code Output Ellipse
+* Adjustable Thresholds
+  - 'Q' to switch between selecting threshold line or quiet line
+  - Adjust to make output consistent in your audio enviroment
 * Hot Keys
   - 'S' - Start Program
   - 'D' - Stop Program
