@@ -36,4 +36,4 @@ Modes
 
 * Demo Mode
   1. Activated by pressing 'M' on keyboard
-  2. Removes visualizers and displays morse code translation sheet.ca
+  2. Removes visualizers and displays morse code translation sheet.
