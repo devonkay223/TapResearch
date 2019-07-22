@@ -13,9 +13,9 @@ Features
 --------
 * Audio Visualizers
   - FFT Waveform Visualizer 
-  - Live amplitude and amplitude history
+  - Live Amplitude & Amplitude History
   - FFT Spectrum Visualizer
-  - Ellipses 
+  - Morse Code Output Ellipse
 * Hot Keys
   - 'S' - Start Program
   - 'D' - Stop Program
