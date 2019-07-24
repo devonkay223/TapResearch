@@ -294,7 +294,7 @@ function drawFFTLive(){
     for (let i = 0; i < spectrum.length; i++) {
       let amp = spectrum[i];
       let y = map(amp, 0, 256, height, 0);
-      fill(color(0,0,30));
+      fill(color(0,0,20));
       rect(i * w, y, w-10, height - y);
     }
   }
