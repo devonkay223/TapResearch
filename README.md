@@ -1,12 +1,14 @@
 # TapResearch
 
-TapResearch is a performance art project. Dancers will be able to encode language into their performance choreography. Our program will record, process, and translate tap dancing audio into morse code, then ascii characters, in real time.
+TapResearch is a performance art project. Dancers will be able to encode language into their performance choreography. Our program will listen to ausio, process it, and translate the tap dancing audio into morse code, then ascii characters, in real time.
+
+For more information and demo videos visit devonkay223.github.io/projects/TED!
 
 Quick-Start
 -----------
 [Click Here](https://devonkay223.github.io/TapResearch)
-1. Click Start to begin recording input
-2. Click Stop to stop recording and begin translation analysis.
+1. Click Start to begin listneing for percussive sounds and audio analysis/translation. 
+2. Click Stop to stop listening for precussive sounds.
 3. Click Reset to reset screen and clear past recording and analyses.
 
 Features
@@ -37,3 +39,4 @@ Modes
 * Demo Mode
   1. Activated by pressing 'M' on keyboard
   2. Removes visualizers and displays morse code translation sheet.
+ 
